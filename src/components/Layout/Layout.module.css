@@ -276,6 +276,10 @@
   gap: 0.75rem;
 }
 
+.headerClock {
+  margin-right: 0.5rem;
+}
+
 .headerAction {
   width: 36px;
   height: 36px;

@@ -17,6 +17,8 @@ import { useTables } from '../hooks/useTables'
 import { useOrders } from '../hooks/useOrders'
 import { useMenuItems } from '../hooks/useMenu'
 import { useAppStore } from '../store/useAppStore'
+import { ActivityFeed } from '../components/ActivityFeed'
+import { QuickActions } from '../components/QuickActions'
 import styles from './Dashboard.module.css'
 
 const formatCurrency = (value) => {
@@ -321,20 +323,10 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className={styles.quickActions}>
-        <button className={styles.quickAction} onClick={() => navigate('/orders/new')}>
-          <div className={styles.quickActionIcon}>
-            <Plus size={24} />
-          </div>
-          <div className={styles.quickActionLabel}>Yeni Sipariş</div>
-        </button>
-        <button className={styles.quickAction} onClick={() => navigate('/tables')}>
-          <div className={styles.quickActionIcon}>
-            <Users size={24} />
-          </div>
-          <div className={styles.quickActionLabel}>Masalar</div>
-        </button>
+      {/* Activity Feed & Quick Actions */}
+      <div className={styles.bottomRow}>
+        <ActivityFeed />
+        <QuickActions />
       </div>
     </div>
   )

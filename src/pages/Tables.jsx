@@ -7,11 +7,13 @@ import {
   Plus,
   Filter,
   RefreshCw,
-  ArrowRight
+  ArrowRight,
+  QrCode
 } from 'lucide-react'
 import { Card, CardContent } from '../components/ui/Card'
 import { Button, IconButton } from '../components/ui/Button'
 import { SkeletonTable } from '../components/ui/Skeleton'
+import { QRCodeGenerator } from '../components/QRCodeGenerator'
 import { useTables, useUpdateTableStatus, usePrefetchTable } from '../hooks/useTables'
 import styles from './Tables.module.css'
 
@@ -25,6 +27,7 @@ export default function Tables() {
   const navigate = useNavigate()
   const [filter, setFilter] = useState('all')
   const [sectionFilter, setSectionFilter] = useState('all')
+  const [qrTable, setQrTable] = useState(null) // { id, number } | null
 
   // TanStack Query hooks
   const { data: tables, isLoading, isRefetching, refetch } = useTables()
@@ -225,12 +228,49 @@ export default function Tables() {
                       Sipariş Al
                     </Button>
                   )}
+
+                  {/* QR Kod Butonu */}
+                  <button
+                    className={styles.qrBtn}
+                    onClick={(e) => { e.stopPropagation(); setQrTable({ id: table.id, number: table.number }) }}
+                    title="QR Kod Göster"
+                  >
+                    <QrCode size={14} />
+                    QR
+                  </button>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
         </AnimatePresence>
       </motion.div>
+
+      {/* QR Modal */}
+      <AnimatePresence>
+        {qrTable && (
+          <>
+            <motion.div
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setQrTable(null)}
+            />
+            <motion.div
+              style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 101 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+            >
+              <QRCodeGenerator
+                tableId={qrTable.id}
+                tableNumber={qrTable.number}
+                onClose={() => setQrTable(null)}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {filteredTables.length === 0 && (
         <div className={styles.emptyState}>

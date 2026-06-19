@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
   QrCode, 
@@ -10,16 +10,34 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { useTables } from '../../hooks/useTables'
-import { useAppStore } from '../../store/useAppStore'
 import styles from './CustomerLogin.module.css'
 
 export default function CustomerLogin() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [tableNumber, setTableNumber] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const { data: tables } = useTables()
+
+  // QR koddan gelen ?table= parametresini oku ve otomatik giriş yap
+  useEffect(() => {
+    const tableParam = searchParams.get('table')
+    if (!tableParam || !tables) return
+
+    const table = tables.find(t => t.id === parseInt(tableParam) || t.number === parseInt(tableParam))
+    if (!table) return
+
+    localStorage.setItem('customerTable', JSON.stringify({
+      tableId: table.id,
+      tableNumber: table.number,
+      section: table.section,
+      capacity: table.capacity,
+      sessionStart: new Date().toISOString()
+    }))
+    navigate('/customer/menu')
+  }, [searchParams, tables, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

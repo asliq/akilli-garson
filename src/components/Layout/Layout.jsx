@@ -13,15 +13,13 @@ import {
   Package,
   LogOut,
   User,
-  Wifi,
-  WifiOff,
-  Clock
 } from 'lucide-react'
 import { useActiveOrdersCount } from '../../hooks/useOrders'
 import { useCurrentUser, useLogout } from '../../hooks/useAuth'
 import { useTodayReservationsCount } from '../../hooks/useReservations'
 import { useNotifications, NotificationPanel } from '../NotificationProvider'
 import { WebSocketStatus } from '../WebSocketStatus'
+import { LiveClock } from '../LiveClock'
 import styles from './Layout.module.css'
 
 const mainNavItems = [
@@ -41,7 +39,6 @@ const secondaryNavItems = [
 export default function Layout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const [currentTime, setCurrentTime] = useState(new Date())
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   
   const activeOrdersCount = useActiveOrdersCount()
@@ -49,11 +46,6 @@ export default function Layout({ children }) {
   const currentUser = useCurrentUser()
   const logoutMutation = useLogout()
   const { unreadCount, setShowPanel, showPanel } = useNotifications()
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
@@ -99,9 +91,6 @@ export default function Layout({ children }) {
             <span>{isOnline ? 'Bağlı' : 'Çevrimdışı'}</span>
           </div>
           <WebSocketStatus />
-          <div className={styles.clock}>
-            {currentTime.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-          </div>
         </div>
 
         {/* Navigation */}
@@ -199,10 +188,15 @@ export default function Layout({ children }) {
                  'Dashboard'}
               </h1>
             </div>
-            
+
             <div className={styles.headerRight}>
+              {/* Live Clock */}
+              <div className={styles.headerClock}>
+                <LiveClock />
+              </div>
+
               {/* Notifications */}
-              <button 
+              <button
                 className={styles.headerAction}
                 onClick={() => setShowPanel(!showPanel)}
               >
@@ -213,7 +207,7 @@ export default function Layout({ children }) {
                   </span>
                 )}
               </button>
-              
+
               {/* User */}
               <button className={styles.headerAction}>
                 <User size={18} />

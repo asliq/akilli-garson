@@ -83,6 +83,28 @@ export const menuApi = {
     const { data } = await axiosInstance.patch(`/menuItems/${id}`, { price })
     return data
   },
+
+  // Yeni menü öğesi oluştur
+  create: async (item) => {
+    const { data } = await axiosInstance.post('/menuItems', {
+      ...item,
+      isAvailable: item.isAvailable ?? true,
+      createdAt: new Date().toISOString(),
+    })
+    return data
+  },
+
+  // Menü öğesi sil
+  delete: async (id) => {
+    await axiosInstance.delete(`/menuItems/${id}`)
+    return id
+  },
+
+  // Menü öğesini tam güncelle
+  update: async ({ id, ...item }) => {
+    const { data } = await axiosInstance.patch(`/menuItems/${id}`, item)
+    return data
+  },
 }
 
 // ==========================================
@@ -162,21 +184,6 @@ export const waitersApi = {
   
   getById: async (id) => {
     const { data } = await axiosInstance.get(`/waiters/${id}`)
-    return data
-  },
-}
-
-// ==========================================
-// İSTATİSTİK SERVİSLERİ
-// ==========================================
-export const statsApi = {
-  get: async () => {
-    const { data } = await axiosInstance.get('/stats')
-    return data
-  },
-  
-  update: async (stats) => {
-    const { data } = await axiosInstance.patch('/stats', stats)
     return data
   },
 }
@@ -274,7 +281,6 @@ export const api = {
   menu: menuApi,
   orders: ordersApi,
   waiters: waitersApi,
-  stats: statsApi,
   discounts: discountsApi,
   inventory: inventoryApi,
 }

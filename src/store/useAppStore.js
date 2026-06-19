@@ -1,12 +1,6 @@
 import { create } from 'zustand'
 import { persist, devtools } from 'zustand/middleware'
 
-// ==========================================
-// ANA UYGULAMA STORE
-// Zustand ile global state yönetimi
-// TanStack Query ile birlikte kullanılır
-// ==========================================
-
 export const useAppStore = create(
   devtools(
     persist(
@@ -20,16 +14,17 @@ export const useAppStore = create(
         soundEnabled: true,
         kitchenAutoRefresh: true,
         kitchenRefreshInterval: 5000,
-        
-        toggleSidebar: () => set((state) => ({ 
-          sidebarCollapsed: !state.sidebarCollapsed 
+        notificationSound: 'default',
+
+        toggleSidebar: () => set((state) => ({
+          sidebarCollapsed: !state.sidebarCollapsed
         })),
-        
         setTheme: (theme) => set({ theme }),
         setLanguage: (language) => set({ language }),
         toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
         setKitchenAutoRefresh: (value) => set({ kitchenAutoRefresh: value }),
         setKitchenRefreshInterval: (interval) => set({ kitchenRefreshInterval: interval }),
+        setNotificationSound: (sound) => set({ notificationSound: sound }),
 
         // ==========================================
         // ACTIVE WAITER (Giriş yapan garson)
@@ -41,12 +36,12 @@ export const useAppStore = create(
         // ==========================================
         // CART STATE (Sepet - her masa için ayrı)
         // ==========================================
-        carts: {}, // { tableId: [items] }
-        
+        carts: {},
+
         addToCart: (tableId, item) => set((state) => {
           const tableCart = state.carts[tableId] || []
           const existingItem = tableCart.find(i => i.menuItemId === item.menuItemId)
-          
+
           if (existingItem) {
             return {
               carts: {
@@ -59,7 +54,7 @@ export const useAppStore = create(
               }
             }
           }
-          
+
           return {
             carts: {
               ...state.carts,
@@ -67,7 +62,7 @@ export const useAppStore = create(
             }
           }
         }),
-        
+
         removeFromCart: (tableId, menuItemId) => set((state) => ({
           carts: {
             ...state.carts,
@@ -76,7 +71,7 @@ export const useAppStore = create(
             )
           }
         })),
-        
+
         updateCartItemQuantity: (tableId, menuItemId, quantity) => set((state) => {
           if (quantity <= 0) {
             return {
@@ -88,7 +83,7 @@ export const useAppStore = create(
               }
             }
           }
-          
+
           return {
             carts: {
               ...state.carts,
@@ -98,7 +93,7 @@ export const useAppStore = create(
             }
           }
         }),
-        
+
         updateCartItemNotes: (tableId, menuItemId, notes) => set((state) => ({
           carts: {
             ...state.carts,
@@ -107,19 +102,19 @@ export const useAppStore = create(
             )
           }
         })),
-        
+
         clearCart: (tableId) => set((state) => ({
           carts: {
             ...state.carts,
             [tableId]: []
           }
         })),
-        
+
         getCartTotal: (tableId) => {
           const cart = get().carts[tableId] || []
           return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
         },
-        
+
         getCartItemCount: (tableId) => {
           const cart = get().carts[tableId] || []
           return cart.reduce((sum, item) => sum + item.quantity, 0)
@@ -131,21 +126,11 @@ export const useAppStore = create(
         unreadNotifications: 0,
         setUnreadNotifications: (count) => set({ unreadNotifications: count }),
 
-        // ==========================================
-        // KITCHEN DISPLAY SETTINGS
-        // ==========================================
-        kitchenAutoRefresh: true,
-        kitchenRefreshInterval: 10000, // 10 saniye
-        setKitchenAutoRefresh: (value) => set({ kitchenAutoRefresh: value }),
-        setKitchenRefreshInterval: (interval) => set({ kitchenRefreshInterval: interval }),
-
-        // ==========================================
-        // SOUND SETTINGS
-        // ==========================================
-        soundEnabled: true,
-        notificationSound: 'default',
-        toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
-        setNotificationSound: (sound) => set({ notificationSound: sound }),
+        // Simple addNotification: increments badge count
+        // Full notification logic lives in NotificationProvider context
+        addNotification: () => set((state) => ({
+          unreadNotifications: state.unreadNotifications + 1
+        })),
 
         // ==========================================
         // FILTERS STATE (Sayfa bazlı filtreler)
@@ -156,7 +141,7 @@ export const useAppStore = create(
           menu: { category: null, search: '' },
           reservations: { date: null, status: 'all' },
         },
-        
+
         setFilter: (page, key, value) => set((state) => ({
           filters: {
             ...state.filters,
@@ -166,11 +151,11 @@ export const useAppStore = create(
             }
           }
         })),
-        
+
         resetFilters: (page) => set((state) => ({
           filters: {
             ...state.filters,
-            [page]: page === 'tables' 
+            [page]: page === 'tables'
               ? { status: 'all', section: 'all' }
               : page === 'orders'
               ? { status: 'active', waiter: 'all' }
@@ -204,4 +189,3 @@ export const useCartTotal = (tableId) => useAppStore((state) => state.getCartTot
 export const useCartItemCount = (tableId) => useAppStore((state) => state.getCartItemCount(tableId))
 export const useActiveWaiter = () => useAppStore((state) => state.activeWaiter)
 export const useFilters = (page) => useAppStore((state) => state.filters[page])
-

@@ -8,31 +8,20 @@ export function KeyboardShortcuts() {
   useEffect(() => {
     const handleKeyPress = (e) => {
       // Ctrl/Cmd kombinasyonları
+      // Not: Ctrl+K CommandPalette bileşeni tarafından yönetilir
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
         switch(e.key.toLowerCase()) {
-          case 'k':
-            e.preventDefault()
-            toast('🔍 Hızlı arama (yakında)')
-            break
           case 'n':
             e.preventDefault()
             navigate('/tables')
-            toast.success('📋 Masalar sayfasına gidildi')
-            break
-          case 's':
-            e.preventDefault()
-            navigate('/settings')
-            toast.success('⚙️ Ayarlar açıldı')
             break
           case 'h':
             e.preventDefault()
             navigate('/')
-            toast.success('🏠 Anasayfa')
             break
           case 'm':
             e.preventDefault()
             navigate('/menu')
-            toast.success('🍽️ Menü yönetimi')
             break
         }
       }

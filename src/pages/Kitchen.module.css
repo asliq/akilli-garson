@@ -367,6 +367,150 @@
   margin: 0;
 }
 
+/* Stats Row */
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.statBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.statBadge[data-status="pending"] {
+  background: var(--warning-light, #fef3c7);
+  color: var(--warning, #d97706);
+}
+
+.statBadge[data-status="preparing"] {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.statBadge[data-status="ready"] {
+  background: var(--success-light, #dcfce7);
+  color: var(--success, #16a34a);
+}
+
+/* Item-level status styles */
+.orderItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  background: var(--bg-page);
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+
+.orderItem.pending {
+  border-left-color: var(--warning, #d97706);
+}
+
+.orderItem.preparing {
+  border-left-color: #7c3aed;
+  background: #faf5ff;
+}
+
+.orderItem.ready {
+  border-left-color: var(--success, #16a34a);
+  background: #f0fdf4;
+}
+
+.itemInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.itemActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.itemBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+
+.itemBtn.start {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.itemBtn.start:hover {
+  background: #ddd6fe;
+}
+
+.itemBtn.done {
+  background: var(--success-light, #dcfce7);
+  color: var(--success, #16a34a);
+}
+
+.itemBtn.done:hover {
+  background: #bbf7d0;
+}
+
+.itemDone {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success, #16a34a);
+}
+
+/* Ready badge */
+.readyBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--success-light, #dcfce7);
+  color: var(--success, #16a34a);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  flex: 1;
+  justify-content: center;
+}
+
+/* Priority Toggle */
+.priorityToggle {
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.priorityToggle:hover {
+  border-color: var(--warning, #d97706);
+  color: var(--warning, #d97706);
+}
+
+.priorityToggle.highActive {
+  background: #fef3c7;
+  border-color: var(--warning, #d97706);
+  color: var(--warning, #d97706);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .ordersGrid {

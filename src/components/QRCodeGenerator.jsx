@@ -1,51 +1,25 @@
 import { useEffect, useRef } from 'react'
-import { Download, Printer } from 'lucide-react'
+import QRCode from 'qrcode'
+import { Download, Printer, X } from 'lucide-react'
 import styles from './QRCodeGenerator.module.css'
 
-export function QRCodeGenerator({ tableId, tableNumber }) {
+export function QRCodeGenerator({ tableId, tableNumber, onClose }) {
   const canvasRef = useRef(null)
   const url = `${window.location.origin}/customer?table=${tableId}`
 
   useEffect(() => {
     if (!canvasRef.current) return
 
-    // Basit QR kod oluşturma (gerçek projede qrcode kütüphanesi kullanılmalı)
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    const size = 200
-    canvas.width = size
-    canvas.height = size
-
-    // Arka plan
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, size, size)
-
-    // Basit QR pattern (demo)
-    ctx.fillStyle = '#000000'
-    const moduleSize = size / 25
-    for (let row = 0; row < 25; row++) {
-      for (let col = 0; col < 25; col++) {
-        // Rastgele pattern (gerçek QR için kütüphane kullan)
-        if (Math.random() > 0.5) {
-          ctx.fillRect(col * moduleSize, row * moduleSize, moduleSize, moduleSize)
-        }
-      }
-    }
-
-    // Köşe marker'ları
-    const drawCornerMarker = (x, y) => {
-      ctx.fillStyle = '#000000'
-      ctx.fillRect(x, y, moduleSize * 7, moduleSize * 7)
-      ctx.fillStyle = '#ffffff'
-      ctx.fillRect(x + moduleSize, y + moduleSize, moduleSize * 5, moduleSize * 5)
-      ctx.fillStyle = '#000000'
-      ctx.fillRect(x + moduleSize * 2, y + moduleSize * 2, moduleSize * 3, moduleSize * 3)
-    }
-
-    drawCornerMarker(0, 0)
-    drawCornerMarker(size - moduleSize * 7, 0)
-    drawCornerMarker(0, size - moduleSize * 7)
-  }, [tableId])
+    QRCode.toCanvas(canvasRef.current, url, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#1a1a2e',
+        light: '#ffffff',
+      },
+      errorCorrectionLevel: 'H',
+    }).catch(err => console.error('QR kod oluşturulamadı:', err))
+  }, [url])
 
   const handleDownload = () => {
     const canvas = canvasRef.current
@@ -57,29 +31,34 @@ export function QRCodeGenerator({ tableId, tableNumber }) {
 
   const handlePrint = () => {
     const canvas = canvasRef.current
-    const printWindow = window.open('', '', 'width=600,height=600')
+    const printWindow = window.open('', '', 'width=600,height=700')
     printWindow.document.write(`
       <html>
         <head>
           <title>Masa ${tableNumber} QR Kod</title>
           <style>
-            body { 
-              display: flex; 
+            body {
+              display: flex;
               flex-direction: column;
-              align-items: center; 
+              align-items: center;
               justify-content: center;
               padding: 40px;
               font-family: Arial, sans-serif;
+              background: #fff;
             }
-            h1 { margin-bottom: 20px; }
-            img { border: 2px solid #000; padding: 10px; }
-            p { margin-top: 20px; font-size: 14px; color: #666; }
+            .title { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
+            .subtitle { font-size: 14px; color: #666; margin-bottom: 24px; }
+            img { border: 2px solid #eee; padding: 10px; border-radius: 8px; }
+            .url { margin-top: 16px; font-size: 11px; color: #999; word-break: break-all; max-width: 240px; text-align: center; }
+            .hint { margin-top: 12px; font-size: 13px; color: #555; }
           </style>
         </head>
         <body>
-          <h1>Masa ${tableNumber}</h1>
-          <img src="${canvas.toDataURL()}" />
-          <p>Menüyü görmek için QR kodu okutun</p>
+          <div class="title">Masa ${tableNumber}</div>
+          <div class="subtitle">Lezzet Durağı</div>
+          <img src="${canvas.toDataURL()}" width="200" height="200" />
+          <div class="hint">Menüyü görmek için QR kodu okutun</div>
+          <div class="url">${url}</div>
         </body>
       </html>
     `)
@@ -93,6 +72,11 @@ export function QRCodeGenerator({ tableId, tableNumber }) {
   return (
     <div className={styles.qrGenerator}>
       <div className={styles.qrCard}>
+        {onClose && (
+          <button className={styles.closeBtn} onClick={onClose}>
+            <X size={18} />
+          </button>
+        )}
         <div className={styles.qrHeader}>
           <h3>Masa {tableNumber}</h3>
           <span className={styles.qrSubtitle}>Menü QR Kodu</span>
@@ -115,4 +99,3 @@ export function QRCodeGenerator({ tableId, tableNumber }) {
     </div>
   )
 }
-

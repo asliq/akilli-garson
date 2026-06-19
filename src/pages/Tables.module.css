@@ -190,6 +190,30 @@
   color: var(--text-muted);
 }
 
+/* QR Button */
+.qrBtn {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.qrBtn:hover {
+  background: var(--bg-hover);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
 /* Empty State */
 .emptyState {
   text-align: center;

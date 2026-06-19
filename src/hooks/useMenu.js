@@ -130,6 +130,59 @@ export function useUpdateMenuPrice() {
 }
 
 // ==========================================
+// YENİ MENÜ ÖĞESİ OLUŞTUR
+// ==========================================
+export function useCreateMenuItem() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: menuApi.create,
+
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: menuKeys.all })
+      toast.success(`${data.name} menüye eklendi!`)
+    },
+
+    onError: () => {
+      toast.error('Ürün eklenemedi!')
+    },
+  })
+}
+
+// ==========================================
+// MENÜ ÖĞESİ SİL
+// ==========================================
+export function useDeleteMenuItem() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: menuApi.delete,
+
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: menuKeys.lists() })
+      const previousItems = queryClient.getQueryData(menuKeys.lists())
+      queryClient.setQueryData(menuKeys.lists(), (old) =>
+        old?.filter((item) => item.id !== id)
+      )
+      return { previousItems }
+    },
+
+    onError: (err, id, context) => {
+      queryClient.setQueryData(menuKeys.lists(), context?.previousItems)
+      toast.error('Ürün silinemedi!')
+    },
+
+    onSuccess: () => {
+      toast.success('Ürün menüden kaldırıldı')
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: menuKeys.all })
+    },
+  })
+}
+
+// ==========================================
 // MENÜ + KATEGORİ COMBINED HOOK
 // ==========================================
 export function useMenuWithCategories() {

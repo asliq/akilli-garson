@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import Layout from './components/Layout/Layout'
 import AuthGuard from './components/AuthGuard'
 import { KeyboardShortcuts } from './components/KeyboardShortcuts'
+import { CommandPalette } from './components/CommandPalette'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Tables from './pages/Tables'
@@ -24,6 +25,7 @@ function App() {
   return (
     <>
       <KeyboardShortcuts />
+      <CommandPalette />
       <AnimatePresence mode="wait">
         <Routes>
         {/* Staff Login */}
