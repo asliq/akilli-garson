@@ -21,7 +21,9 @@ import {
   RefreshCw,
   Command,
   ArrowRight,
-  Hash
+  FileText,
+  Users,
+  Package,
 } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 import { useLogout } from '../hooks/useAuth'
@@ -36,6 +38,9 @@ const commands = [
   { id: 'nav-menu', label: 'Menü Yönetimi', description: 'Menü düzenle', icon: UtensilsCrossed, category: 'Navigasyon', action: 'navigate', path: '/menu', shortcut: 'G M' },
   { id: 'nav-reservations', label: 'Rezervasyonlar', description: 'Rezervasyon yönetimi', icon: CalendarDays, category: 'Navigasyon', action: 'navigate', path: '/reservations', shortcut: 'G R' },
   { id: 'nav-analytics', label: 'Raporlar', description: 'Analitik ve raporlar', icon: BarChart3, category: 'Navigasyon', action: 'navigate', path: '/analytics', shortcut: 'G A' },
+  { id: 'nav-daily-report', label: 'Günlük Rapor', description: 'Gün sonu özeti', icon: FileText, category: 'Navigasyon', action: 'navigate', path: '/daily-report' },
+  { id: 'nav-waiters', label: 'Garsonlar', description: 'Garson yönetimi', icon: Users, category: 'Navigasyon', action: 'navigate', path: '/waiters' },
+  { id: 'nav-inventory', label: 'Stok Yönetimi', description: 'Envanter takibi', icon: Package, category: 'Navigasyon', action: 'navigate', path: '/inventory' },
   { id: 'nav-settings', label: 'Ayarlar', description: 'Sistem ayarları', icon: Settings, category: 'Navigasyon', action: 'navigate', path: '/settings', shortcut: 'G S' },
   
   // Actions

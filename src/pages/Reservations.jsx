@@ -21,7 +21,7 @@ import {
   useUpdateReservationStatus,
   useCreateReservation
 } from '../hooks/useReservations'
-import { useTables } from '../hooks/useTables'
+import { useTables, useUpdateTableStatus } from '../hooks/useTables'
 import styles from './Reservations.module.css'
 
 const statusConfig = {
@@ -56,13 +56,24 @@ export default function Reservations() {
   
   const { data: tables } = useTables()
   const updateStatus = useUpdateReservationStatus()
+  const updateTableStatus = useUpdateTableStatus()
   const createReservation = useCreateReservation()
 
   // Tüm sayfaları birleştir
   const reservations = data?.pages?.flatMap(page => page.reservations) || []
 
-  const handleStatusChange = (id, newStatus) => {
-    updateStatus.mutate({ id, status: newStatus })
+  const handleStatusChange = (id, newStatus, tableId) => {
+    updateStatus.mutate({ id, status: newStatus }, {
+      onSuccess: () => {
+        if (!tableId) return
+        if (newStatus === 'confirmed') {
+          updateTableStatus.mutate({ id: tableId, status: 'reserved' })
+        }
+        if (newStatus === 'cancelled' || newStatus === 'completed') {
+          updateTableStatus.mutate({ id: tableId, status: 'available' })
+        }
+      },
+    })
   }
 
   const handleCreateReservation = (e) => {
@@ -328,7 +339,7 @@ export default function Reservations() {
                           variant="success"
                           size="small"
                           icon={Check}
-                          onClick={() => handleStatusChange(reservation.id, 'confirmed')}
+                          onClick={() => handleStatusChange(reservation.id, 'confirmed', reservation.tableId)}
                           loading={updateStatus.isPending}
                         >
                           Onayla
@@ -336,7 +347,7 @@ export default function Reservations() {
                         <Button
                           variant="ghost"
                           size="small"
-                          onClick={() => handleStatusChange(reservation.id, 'cancelled')}
+                          onClick={() => handleStatusChange(reservation.id, 'cancelled', reservation.tableId)}
                         >
                           İptal
                         </Button>
@@ -348,7 +359,7 @@ export default function Reservations() {
                         <Button
                           variant="primary"
                           size="small"
-                          onClick={() => handleStatusChange(reservation.id, 'completed')}
+                          onClick={() => handleStatusChange(reservation.id, 'completed', reservation.tableId)}
                         >
                           Tamamlandı
                         </Button>

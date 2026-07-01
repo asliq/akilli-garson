@@ -260,6 +260,9 @@ export default function Layout({ children }) {
       
       {/* Notification Panel */}
       <NotificationPanel />
+
+      {/* Dev-only performans monitörü */}
+      {import.meta.env.DEV && <PerformanceMonitor />}
     </div>
   )
 }

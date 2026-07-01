@@ -2,12 +2,13 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { useAuthGuard } from '../hooks/useAuth'
+import { usePermissions } from '../hooks/usePermissions'
 
 export default function AuthGuard({ children }) {
   const location = useLocation()
   const { isAuthenticated, isLoading } = useAuthGuard()
+  const { canAccess, defaultPath } = usePermissions()
 
-  // Yükleniyor
   if (isLoading) {
     return (
       <div style={{
@@ -27,12 +28,12 @@ export default function AuthGuard({ children }) {
             gap: '1rem',
           }}
         >
-          <Loader2 
-            size={40} 
-            style={{ 
-              color: 'var(--accent-gold)',
+          <Loader2
+            size={40}
+            style={{
+              color: 'var(--primary)',
               animation: 'spin 1s linear infinite',
-            }} 
+            }}
           />
           <span style={{ color: 'var(--text-muted)' }}>Oturum kontrol ediliyor...</span>
         </motion.div>
@@ -40,12 +41,14 @@ export default function AuthGuard({ children }) {
     )
   }
 
-  // Giriş yapmamışsa login'e yönlendir
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // Giriş yapmışsa içeriği göster
+  // Rol bazlı erişim kontrolü
+  if (!canAccess(location.pathname)) {
+    return <Navigate to={defaultPath} replace />
+  }
+
   return children
 }
-
