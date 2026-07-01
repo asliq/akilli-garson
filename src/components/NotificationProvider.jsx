@@ -14,6 +14,8 @@ import {
 } from 'lucide-react'
 import { useOrders } from '../hooks/useOrders'
 import { useTables } from '../hooks/useTables'
+import { usePendingServiceCalls, useHandleServiceCall } from '../hooks/useServiceCalls'
+import { useLowStockItems } from '../hooks/useInventory'
 import { useAppStore } from '../store/useAppStore'
 import { soundEffects } from '../utils/soundUtils'
 import styles from './NotificationProvider.module.css'
@@ -59,6 +61,18 @@ const notificationTypes = {
     color: 'info',
     title: 'Masa Doldu',
     sound: 'notification'
+  },
+  low_stock: {
+    icon: AlertCircle,
+    color: 'warning',
+    title: 'Düşük Stok',
+    sound: 'alert'
+  },
+  reservation: {
+    icon: Clock,
+    color: 'info',
+    title: 'Rezervasyon',
+    sound: 'notification'
   }
 }
 
@@ -68,10 +82,16 @@ export function NotificationProvider({ children }) {
   const [unreadCount, setUnreadCount] = useState(0)
   
   const soundEnabled = useAppStore((state) => state.soundEnabled)
+  const notificationPrefs = useAppStore((state) => state.notificationPrefs)
   const previousOrdersRef = useRef(null)
+  const notifiedCallsRef = useRef(new Set())
+  const notifiedStockRef = useRef(new Set())
   
   const { data: orders } = useOrders()
   const { data: tables } = useTables()
+  const { data: pendingCalls } = usePendingServiceCalls()
+  const { data: lowStockItems } = useLowStockItems()
+  const handleServiceCall = useHandleServiceCall()
 
   // Ses çal — soundUtils ile
   const playSound = useCallback((type) => {
@@ -88,6 +108,17 @@ export function NotificationProvider({ children }) {
 
   // Bildirim ekle
   const addNotification = useCallback((type, message, data = {}) => {
+    const prefMap = {
+      new_order: 'newOrder',
+      order_ready: 'orderReady',
+      order_preparing: 'newOrder',
+      call_waiter: 'callWaiter',
+      low_stock: 'lowStock',
+      reservation: 'reservation',
+    }
+    const prefKey = prefMap[type]
+    if (prefKey && notificationPrefs[prefKey] === false) return null
+
     const id = Date.now() + Math.random()
     const config = notificationTypes[type] || notificationTypes.new_order
     
@@ -113,7 +144,7 @@ export function NotificationProvider({ children }) {
     }, 5000)
     
     return id
-  }, [playSound])
+  }, [playSound, notificationPrefs])
 
   // Bildirimi kapat
   const dismissNotification = useCallback((id) => {
@@ -179,6 +210,35 @@ export function NotificationProvider({ children }) {
     previousOrdersRef.current = orders
   }, [orders, tables, addNotification])
 
+  // Garson çağrılarını izle
+  useEffect(() => {
+    if (!pendingCalls?.length) return
+    pendingCalls.forEach(call => {
+      if (notifiedCallsRef.current.has(call.id)) return
+      notifiedCallsRef.current.add(call.id)
+      const typeLabel = call.type === 'bill' ? 'Hesap istendi' : 'Garson çağrıldı'
+      addNotification(
+        'call_waiter',
+        `Masa ${call.tableNumber} — ${typeLabel}`,
+        { callId: call.id, tableId: call.tableId }
+      )
+    })
+  }, [pendingCalls, addNotification])
+
+  // Düşük stok uyarıları
+  useEffect(() => {
+    if (!lowStockItems?.length) return
+    lowStockItems.forEach(item => {
+      if (notifiedStockRef.current.has(item.id)) return
+      notifiedStockRef.current.add(item.id)
+      addNotification(
+        'low_stock',
+        `${item.name}: ${item.quantity} ${item.unit} kaldı (min: ${item.minQuantity})`,
+        { itemId: item.id }
+      )
+    })
+  }, [lowStockItems, addNotification])
+
   const value = {
     notifications,
     unreadCount,
@@ -187,7 +247,9 @@ export function NotificationProvider({ children }) {
     addNotification,
     dismissNotification,
     markAllAsRead,
-    clearAll
+    clearAll,
+    handleServiceCall: handleServiceCall.mutate,
+    pendingCalls,
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ordersApi } from '../api/services'
+import { ordersApi, tablesApi } from '../api/services'
 import { tableKeys } from './useTables'
 import toast from 'react-hot-toast'
 
@@ -134,8 +134,8 @@ export function useUpdateOrderStatus() {
       }
       toast.success(`Sipariş: ${statusText[data.status]}`)
       
-      // Eğer sipariş ödendi veya iptal edildiyse masayı boşalt
-      if (data.status === 'paid' || data.status === 'cancelled') {
+      // Eğer sipariş tamamlandı veya iptal edildiyse masayı boşalt
+      if (data.status === 'completed' || data.status === 'paid' || data.status === 'cancelled') {
         queryClient.setQueryData(tableKeys.lists(), (old) =>
           old?.map((table) =>
             table.id === data.tableId ? { ...table, status: 'available' } : table
@@ -235,5 +235,41 @@ export function useActiveOrdersCount() {
   return orders?.filter((order) => 
     ['pending', 'preparing', 'ready'].includes(order.status)
   ).length || 0
+}
+
+// ==========================================
+// SİPARİŞ GÜNCELLE (genel)
+// ==========================================
+export function useUpdateOrder() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ordersApi.update,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: orderKeys.all })
+      queryClient.invalidateQueries({ queryKey: tableKeys.all })
+    },
+    onError: () => toast.error('Sipariş güncellenemedi'),
+  })
+}
+
+// ==========================================
+// MASA TRANSFERİ
+// ==========================================
+export function useTransferOrder() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ orderId, fromTableId, toTableId }) => {
+      const order = await ordersApi.update({ id: orderId, tableId: toTableId })
+      await tablesApi.updateStatus({ id: fromTableId, status: 'available' })
+      await tablesApi.updateStatus({ id: toTableId, status: 'occupied' })
+      return order
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: orderKeys.all })
+      queryClient.invalidateQueries({ queryKey: tableKeys.all })
+      toast.success('Sipariş transfer edildi')
+    },
+    onError: () => toast.error('Transfer başarısız'),
+  })
 }
 

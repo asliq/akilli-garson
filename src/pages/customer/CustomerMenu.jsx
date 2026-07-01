@@ -20,6 +20,9 @@ import {
 } from 'lucide-react'
 import { useMenuWithCategories } from '../../hooks/useMenu'
 import { useCreateOrder } from '../../hooks/useOrders'
+import { useCreateServiceCall } from '../../hooks/useServiceCalls'
+import { useTranslation } from '../../hooks/useTranslation'
+import toast from 'react-hot-toast'
 import styles from './CustomerMenu.module.css'
 
 const formatCurrency = (value) => {
@@ -44,6 +47,15 @@ export default function CustomerMenu() {
 
   const { categories, menuItems, isLoading } = useMenuWithCategories()
   const createOrder = useCreateOrder()
+  const createServiceCall = useCreateServiceCall()
+  const { t } = useTranslation()
+
+  // Son siparişler (localStorage)
+  const recentItems = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('customerRecentItems') || '[]')
+    } catch { return [] }
+  }, [cart]) // cart değişince yeniden oku
 
   useEffect(() => {
     const tableData = localStorage.getItem('customerTable')
@@ -97,11 +109,22 @@ export default function CustomerMenu() {
   const serviceFee = cartTotal * 0.10 // %10 servis ücreti
   const totalWithService = cartTotal + serviceFee
 
-  const handleCallWaiter = () => {
-    alert('Garson çağrıldı! En kısa sürede size yardımcı olacaktır.')
+  const sendServiceCall = (type) => {
+    if (!customerTable) return
+    createServiceCall.mutate({
+      tableId: customerTable.tableId,
+      tableNumber: customerTable.tableNumber,
+      type,
+    }, {
+      onSuccess: () => {
+        toast.success(type === 'bill' ? t('customer.requestBill') + ' ✓' : t('customer.callWaiter') + ' ✓')
+      },
+    })
   }
 
+  const handleCallWaiter = () => sendServiceCall('waiter')
   const handleRequestBill = () => {
+    sendServiceCall('bill')
     setShowPayment(true)
   }
 
@@ -125,14 +148,17 @@ export default function CustomerMenu() {
 
     createOrder.mutate(orderData, {
       onSuccess: () => {
+        // Son siparişleri kaydet
+        const recent = cart.map(i => ({ id: i.id, name: i.name, price: i.price }))
+        localStorage.setItem('customerRecentItems', JSON.stringify(recent.slice(0, 5)))
         setCart([])
         setShowCart(false)
         setShowPayment(false)
-        alert('Siparişiniz alındı! Teşekkürler.')
+        toast.success(t('customer.orderPlaced'))
         navigate('/customer/orders')
       },
-      onError: (error) => {
-        alert('Sipariş gönderilemedi. Lütfen tekrar deneyin.')
+      onError: () => {
+        toast.error(t('errors.network'))
       }
     })
   }
@@ -167,6 +193,25 @@ export default function CustomerMenu() {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
+
+      {/* Son Siparişler */}
+      {recentItems.length > 0 && (
+        <div className={styles.recentSection}>
+          <h3>{t('customer.recentOrders') || 'Tekrar Sipariş'}</h3>
+          <div className={styles.recentList}>
+            {recentItems.map(item => {
+              const menuItem = menuItems?.find(m => m.id === item.id)
+              if (!menuItem?.isAvailable) return null
+              return (
+                <button key={item.id} className={styles.recentChip} onClick={() => addToCart(menuItem)}>
+                  <Plus size={14} />
+                  {item.name}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Categories */}
       <div className={styles.categories}>

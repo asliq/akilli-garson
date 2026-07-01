@@ -24,6 +24,9 @@ import { useTodayReservationsCount } from '../../hooks/useReservations'
 import { useNotifications, NotificationPanel } from '../NotificationProvider'
 import { WebSocketStatus } from '../WebSocketStatus'
 import { LiveClock } from '../LiveClock'
+import { VoiceCommand } from '../VoiceCommand'
+import { PerformanceMonitor } from '../PerformanceMonitor'
+import { usePermissions } from '../../hooks/usePermissions'
 import styles from './Layout.module.css'
 
 const mainNavItems = [
@@ -57,6 +60,10 @@ export default function Layout({ children }) {
   const reservationsCount = useTodayReservationsCount()
   const currentUser = useCurrentUser()
   const logoutMutation = useLogout()
+  const { canAccess, role } = usePermissions()
+
+  const filteredMainNav = mainNavItems.filter(item => canAccess(item.path))
+  const filteredSecondaryNav = secondaryNavItems.filter(item => canAccess(item.path))
   const { unreadCount, setShowPanel, showPanel } = useNotifications()
 
   useEffect(() => {
@@ -119,7 +126,7 @@ export default function Layout({ children }) {
           {/* Main Nav */}
           <div className={styles.navSection}>
             <span className={styles.navLabel}>İşlemler</span>
-            {mainNavItems.map((item) => {
+            {filteredMainNav.map((item) => {
               const badgeCount = item.badge ? getBadgeCount(item.badge) : 0
               const isActive = location.pathname === item.path
               
@@ -142,7 +149,7 @@ export default function Layout({ children }) {
           {/* Secondary Nav */}
           <div className={styles.navSection}>
             <span className={styles.navLabel}>Yönetim</span>
-            {secondaryNavItems.map((item) => {
+            {filteredSecondaryNav.map((item) => {
               const badgeCount = item.badge ? getBadgeCount(item.badge) : 0
               const isActive = location.pathname === item.path
               
@@ -212,14 +219,14 @@ export default function Layout({ children }) {
                 <MenuIcon size={22} />
               </button>
               <h1 className={styles.headerTitle}>
-                {mainNavItems.find(i => i.path === location.pathname)?.label ||
-                 secondaryNavItems.find(i => i.path === location.pathname)?.label ||
+                {filteredMainNav.find(i => i.path === location.pathname)?.label ||
+                 filteredSecondaryNav.find(i => i.path === location.pathname)?.label ||
                  'Dashboard'}
               </h1>
             </div>
 
             <div className={styles.headerRight}>
-              {/* Live Clock */}
+              <VoiceCommand />
               <div className={styles.headerClock}>
                 <LiveClock />
               </div>

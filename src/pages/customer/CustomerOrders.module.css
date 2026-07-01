@@ -662,6 +662,22 @@
   color: var(--primary);
 }
 
+.cancelOrderBtn {
+  padding: 0.375rem 0.75rem;
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cancelOrderBtn:hover {
+  background: var(--danger);
+  color: white;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .statusTimeline {

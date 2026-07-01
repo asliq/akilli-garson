@@ -55,6 +55,8 @@ export default function Settings() {
   const setKitchenAutoRefresh = useAppStore((state) => state.setKitchenAutoRefresh)
   const kitchenRefreshInterval = useAppStore((state) => state.kitchenRefreshInterval)
   const setKitchenRefreshInterval = useAppStore((state) => state.setKitchenRefreshInterval)
+  const notificationPrefs = useAppStore((state) => state.notificationPrefs)
+  const setNotificationPref = useAppStore((state) => state.setNotificationPref)
 
   // Local state for unsaved changes
   const [hasChanges, setHasChanges] = useState(false)
@@ -215,26 +217,23 @@ export default function Settings() {
 
               {/* Bildirim Türleri */}
               <div className={styles.notificationTypes}>
-                <label className={styles.checkItem}>
-                  <input type="checkbox" defaultChecked />
-                  <span className={styles.checkmark}><Check size={12} /></span>
-                  <span>Yeni sipariş bildirimleri</span>
-                </label>
-                <label className={styles.checkItem}>
-                  <input type="checkbox" defaultChecked />
-                  <span className={styles.checkmark}><Check size={12} /></span>
-                  <span>Sipariş hazır bildirimleri</span>
-                </label>
-                <label className={styles.checkItem}>
-                  <input type="checkbox" defaultChecked />
-                  <span className={styles.checkmark}><Check size={12} /></span>
-                  <span>Garson çağrı bildirimleri</span>
-                </label>
-                <label className={styles.checkItem}>
-                  <input type="checkbox" />
-                  <span className={styles.checkmark}><Check size={12} /></span>
-                  <span>Rezervasyon hatırlatmaları</span>
-                </label>
+                {[
+                  { key: 'newOrder', label: 'Yeni sipariş bildirimleri' },
+                  { key: 'orderReady', label: 'Sipariş hazır bildirimleri' },
+                  { key: 'callWaiter', label: 'Garson çağrı bildirimleri' },
+                  { key: 'reservation', label: 'Rezervasyon hatırlatmaları' },
+                  { key: 'lowStock', label: 'Düşük stok uyarıları' },
+                ].map(({ key, label }) => (
+                  <label key={key} className={styles.checkItem}>
+                    <input
+                      type="checkbox"
+                      checked={notificationPrefs[key] ?? true}
+                      onChange={(e) => setNotificationPref(key, e.target.checked)}
+                    />
+                    <span className={styles.checkmark}><Check size={12} /></span>
+                    <span>{label}</span>
+                  </label>
+                ))}
               </div>
             </CardContent>
           </Card>

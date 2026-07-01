@@ -1,5 +1,21 @@
-import { motion } from 'framer-motion' // framer-motion kütüphanesini import ediyoruz.
-import styles from './Button.module.css' // Button.module.css dosyasını import ediyoruz.
+import { motion } from 'framer-motion'
+import styles from './Button.module.css'
+
+const variantClass = {
+  primary: styles.btnPrimary,
+  secondary: styles.btnSecondary,
+  outline: styles.btnOutline,
+  ghost: styles.btnGhost,
+  success: styles.btnSuccess,
+  warning: styles.btnWarning,
+  danger: styles.btnDanger,
+}
+
+const sizeClass = {
+  small: styles.btnSmall,
+  medium: styles.btn,
+  large: styles.btnLarge,
+}
 
 export function Button({ 
   children,
@@ -18,10 +34,10 @@ export function Button({
       whileHover={{ scale: disabled ? 1 : 1.02 }}
       whileTap={{ scale: disabled ? 1 : 0.98 }}
       className={`
-        ${styles.button} 
-        ${styles[variant]} 
-        ${styles[size]}
-        ${fullWidth ? styles.fullWidth : ''}
+        ${styles.btn}
+        ${variantClass[variant] || styles.btnPrimary}
+        ${sizeClass[size] || styles.btn}
+        ${fullWidth ? styles.btnBlock : ''}
         ${loading ? styles.loading : ''}
         ${className}
       `}
@@ -75,7 +91,7 @@ export function IconButton({
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className={`${styles.iconButton} ${styles[variant]} ${styles[`icon${size}`]} ${className}`}
+      className={`${styles.btn} ${styles.btnIcon} ${variantClass[variant] || styles.btnGhost} ${className}`}
       {...props}
     >
       <Icon size={iconSizes[size]} />

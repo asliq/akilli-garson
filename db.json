@@ -841,7 +841,8 @@
         3,
         4
       ],
-      "salesTotal": 4520
+      "salesTotal": 4520,
+      "role": "admin"
     },
     {
       "id": "2",
@@ -857,7 +858,8 @@
         7,
         8
       ],
-      "salesTotal": 6780
+      "salesTotal": 6780,
+      "role": "waiter"
     },
     {
       "id": "3",
@@ -873,9 +875,11 @@
         11,
         12
       ],
-      "salesTotal": 8920
+      "salesTotal": 8920,
+      "role": "kitchen"
     }
   ],
+  "serviceCalls": [],
   "notifications": [
     {
       "id": "1",

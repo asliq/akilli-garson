@@ -145,8 +145,14 @@ export const ordersApi = {
   },
   
   // Sipariş durumunu güncelle
-  updateStatus: async ({ id, status }) => {
-    const { data } = await axiosInstance.patch(`/orders/${id}`, { status })
+  updateStatus: async ({ id, status, ...rest }) => {
+    const { data } = await axiosInstance.patch(`/orders/${id}`, { status, ...rest })
+    return data
+  },
+
+  // Genel sipariş güncelleme (transfer, birleştirme vb.)
+  update: async ({ id, ...updates }) => {
+    const { data } = await axiosInstance.patch(`/orders/${id}`, updates)
     return data
   },
   
@@ -290,6 +296,38 @@ export const inventoryApi = {
   },
 }
 
+// ==========================================
+// GARSON ÇAĞRISI / SERVİS TALEPLERİ
+// ==========================================
+export const serviceCallsApi = {
+  getAll: async () => {
+    const { data } = await axiosInstance.get('/serviceCalls')
+    return data
+  },
+
+  getPending: async () => {
+    const { data } = await axiosInstance.get('/serviceCalls?status=pending')
+    return data
+  },
+
+  create: async (call) => {
+    const { data } = await axiosInstance.post('/serviceCalls', {
+      ...call,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    })
+    return data
+  },
+
+  markHandled: async (id) => {
+    const { data } = await axiosInstance.patch(`/serviceCalls/${id}`, {
+      status: 'handled',
+      handledAt: new Date().toISOString(),
+    })
+    return data
+  },
+}
+
 export const api = {
   tables: tablesApi,
   categories: categoriesApi,
@@ -298,5 +336,6 @@ export const api = {
   waiters: waitersApi,
   discounts: discountsApi,
   inventory: inventoryApi,
+  serviceCalls: serviceCallsApi,
 }
 

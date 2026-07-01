@@ -16,6 +16,18 @@ export const useAppStore = create(
         kitchenRefreshInterval: 5000,
         notificationSound: 'default',
 
+        // Bildirim tercihleri
+        notificationPrefs: {
+          newOrder: true,
+          orderReady: true,
+          callWaiter: true,
+          reservation: false,
+          lowStock: true,
+        },
+        setNotificationPref: (key, value) => set((state) => ({
+          notificationPrefs: { ...state.notificationPrefs, [key]: value }
+        })),
+
         toggleSidebar: () => set((state) => ({
           sidebarCollapsed: !state.sidebarCollapsed
         })),
@@ -174,6 +186,7 @@ export const useAppStore = create(
           kitchenAutoRefresh: state.kitchenAutoRefresh,
           kitchenRefreshInterval: state.kitchenRefreshInterval,
           activeWaiter: state.activeWaiter,
+          notificationPrefs: state.notificationPrefs,
         }),
       }
     ),

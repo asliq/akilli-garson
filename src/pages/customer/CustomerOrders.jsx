@@ -13,8 +13,11 @@ import {
   MessageSquare,
   RefreshCw
 } from 'lucide-react'
-import { useOrders } from '../../hooks/useOrders'
+import { useOrders, useUpdateOrderStatus } from '../../hooks/useOrders'
 import { useMenuItems } from '../../hooks/useMenu'
+import { useCreateServiceCall } from '../../hooks/useServiceCalls'
+import { useTranslation } from '../../hooks/useTranslation'
+import toast from 'react-hot-toast'
 import styles from './CustomerOrders.module.css'
 
 const statusConfig = {
@@ -89,6 +92,9 @@ export default function CustomerOrders() {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const { data: allOrders, isLoading, refetch, isRefetching } = useOrders()
   const { data: menuItems } = useMenuItems()
+  const updateStatus = useUpdateOrderStatus()
+  const createServiceCall = useCreateServiceCall()
+  const { t } = useTranslation()
 
   const getItemName = (menuItemId) => {
     const mi = menuItems?.find(m => m.id === menuItemId || m.id === parseInt(menuItemId))
@@ -114,7 +120,21 @@ export default function CustomerOrders() {
   )
 
   const handleCallWaiter = () => {
-    alert('Garson çağrıldı! En kısa sürede size yardımcı olacaktır.')
+    if (!customerTable) return
+    createServiceCall.mutate({
+      tableId: customerTable.tableId,
+      tableNumber: customerTable.tableNumber,
+      type: 'waiter',
+    }, {
+      onSuccess: () => toast.success(t('customer.callWaiter') + ' ✓'),
+    })
+  }
+
+  const handleCancelOrder = (orderId) => {
+    if (!window.confirm('Siparişi iptal etmek istiyor musunuz?')) return
+    updateStatus.mutate({ id: orderId, status: 'cancelled' }, {
+      onSuccess: () => toast.success('Sipariş iptal edildi'),
+    })
   }
 
   if (isLoading) {
@@ -210,15 +230,22 @@ export default function CustomerOrders() {
                     <span>Toplam:</span>
                     <strong>{formatCurrency(order.total)}</strong>
                   </div>
-                  {order.paymentMethod && (
-                    <div className={styles.paymentInfo}>
-                      <CreditCard size={14} />
-                      <span>
-                        {order.paymentMethod === 'cash' ? 'Nakit' :
-                         order.paymentMethod === 'card' ? 'Kart' : 'Online'}
-                      </span>
-                    </div>
-                  )}
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {order.status === 'pending' && (
+                      <button className={styles.cancelOrderBtn} onClick={(e) => { e.stopPropagation(); handleCancelOrder(order.id) }}>
+                        İptal Et
+                      </button>
+                    )}
+                    {order.paymentMethod && (
+                      <div className={styles.paymentInfo}>
+                        <CreditCard size={14} />
+                        <span>
+                          {order.paymentMethod === 'cash' ? 'Nakit' :
+                           order.paymentMethod === 'card' ? 'Kart' : 'Online'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )

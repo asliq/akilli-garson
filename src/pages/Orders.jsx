@@ -1,28 +1,18 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
-  ChefHat, 
-  Utensils,
-  CreditCard,
-  XCircle,
-  RefreshCw,
-  User,
-  Printer,
-  Wallet,
-  DollarSign,
-  X,
-  Banknote,
-  Receipt
+  Clock, CheckCircle, AlertCircle, ChefHat, Utensils, CreditCard,
+  XCircle, RefreshCw, User, Printer, Wallet, DollarSign, X,
+  Banknote, Receipt, Percent, Split, ArrowRightLeft
 } from 'lucide-react'
-import { useOrders, useUpdateOrderStatus } from '../hooks/useOrders'
+import { useOrders, useUpdateOrderStatus, useTransferOrder } from '../hooks/useOrders'
 import { useTables, useUpdateTableStatus } from '../hooks/useTables'
 import { useMenuItems } from '../hooks/useMenu'
+import { useCreatePayment, useCreateSplitPayment } from '../hooks/usePayments'
 import { printReceipt } from '../utils/printUtils'
 import { useSoundEffects } from '../hooks/useSoundEffects'
 import { useTranslation } from '../hooks/useTranslation'
+import { TableOperations } from '../components/TableOperations'
 import styles from './Orders.module.css'
 
 const statusConfig = {
@@ -35,35 +25,67 @@ const statusConfig = {
 }
 
 const paymentMethods = [
-  { id: 'cash',   label: 'Nakit',   icon: Banknote  },
-  { id: 'card',   label: 'Kart',    icon: CreditCard },
-  { id: 'online', label: 'Online',  icon: DollarSign },
+  { id: 'cash',   label: 'Nakit',   icon: Banknote,   apiMethod: 'cash' },
+  { id: 'card',   label: 'Kart',    icon: CreditCard, apiMethod: 'credit_card' },
+  { id: 'online', label: 'Online',  icon: DollarSign, apiMethod: 'mobile' },
 ]
 
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(value)
+const formatCurrency = (v) =>
+  new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(v)
 
 const formatTime = (date) =>
   new Date(date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
 
 export default function Orders() {
   const [statusFilter, setStatusFilter] = useState('all')
-  const [paymentOrder, setPaymentOrder] = useState(null)   // sipariş objesi
+  const [paymentOrder, setPaymentOrder] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState('cash')
+  const [discountPercent, setDiscountPercent] = useState(0)
+  const [tipAmount, setTipAmount] = useState(0)
+  const [splitMode, setSplitMode] = useState(false)
+  const [splitCount, setSplitCount] = useState(2)
+  const [tableOps, setTableOps] = useState(null) // { table, order }
 
   const { data: orders, isLoading, refetch, isRefetching } = useOrders()
   const { data: tables } = useTables()
   const { data: menuItems } = useMenuItems()
   const updateStatus = useUpdateOrderStatus()
   const updateTableStatus = useUpdateTableStatus()
+  const createPayment = useCreatePayment()
+  const createSplitPayment = useCreateSplitPayment()
+  const transferOrder = useTransferOrder()
   const { play } = useSoundEffects()
   const { t } = useTranslation()
 
   const filteredOrders = orders?.filter(order => {
     if (statusFilter === 'all') return true
-    if (statusFilter === 'active') return ['pending', 'preparing', 'ready'].includes(order.status)
+    if (statusFilter === 'active') return ['pending', 'preparing', 'ready', 'served'].includes(order.status)
     return order.status === statusFilter
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) || []
+
+  const finalTotal = useMemo(() => {
+    if (!paymentOrder) return 0
+    const discount = paymentOrder.total * (discountPercent / 100)
+    return Math.max(0, paymentOrder.total - discount + tipAmount)
+  }, [paymentOrder, discountPercent, tipAmount])
+
+  const resetPaymentModal = () => {
+    setPaymentOrder(null)
+    setPaymentMethod('cash')
+    setDiscountPercent(0)
+    setTipAmount(0)
+    setSplitMode(false)
+    setSplitCount(2)
+  }
+
+  const openPayment = (order) => {
+    setPaymentOrder(order)
+    setPaymentMethod('cash')
+    setDiscountPercent(0)
+    setTipAmount(0)
+    setSplitMode(false)
+    setSplitCount(2)
+  }
 
   const handleStatusUpdate = (orderId, newStatus) => {
     updateStatus.mutate({ id: orderId, status: newStatus })
@@ -75,48 +97,117 @@ export default function Orders() {
     }
   }
 
-  const handlePaymentConfirm = () => {
-    if (!paymentOrder) return
+  const completeOrderAfterPayment = (receiptNumber) => {
+    const apiMethod = paymentMethods.find(m => m.id === paymentMethod)?.apiMethod || 'cash'
     updateStatus.mutate(
-      { id: paymentOrder.id, status: 'completed', paymentMethod },
+      {
+        id: paymentOrder.id,
+        status: 'completed',
+        paymentMethod: paymentMethod,
+        discount: discountPercent,
+        tip: tipAmount,
+        finalTotal,
+        receiptNumber,
+      },
       {
         onSuccess: () => {
-          // Masayı serbest bırak
           updateTableStatus.mutate({ id: paymentOrder.tableId, status: 'available' })
           play('payment')
-          setPaymentOrder(null)
+          resetPaymentModal()
+        },
+      }
+    )
+  }
+
+  const handlePaymentConfirm = () => {
+    if (!paymentOrder) return
+    const apiMethod = paymentMethods.find(m => m.id === paymentMethod)?.apiMethod || 'cash'
+
+    if (splitMode && splitCount > 1) {
+      const perPerson = finalTotal / splitCount
+      createSplitPayment.mutate(
+        {
+          orderId: paymentOrder.id,
+          tableId: paymentOrder.tableId,
+          splits: Array.from({ length: splitCount }, () => ({
+            amount: perPerson,
+            method: apiMethod,
+          })),
+        },
+        {
+          onSuccess: (payments) => {
+            completeOrderAfterPayment(payments[0]?.receiptNumber)
+          },
         }
+      )
+      return
+    }
+
+    createPayment.mutate(
+      {
+        orderId: paymentOrder.id,
+        tableId: paymentOrder.tableId,
+        amount: finalTotal - tipAmount,
+        tip: tipAmount,
+        method: apiMethod,
+        status: 'completed',
+        discount: discountPercent,
+      },
+      {
+        onSuccess: (payment) => {
+          completeOrderAfterPayment(payment.receiptNumber)
+        },
       }
     )
   }
 
   const getTableNumber = (tableId) => {
-    const table = tables?.find(t => t.id === tableId)
+    const table = tables?.find(t => t.id == tableId)
     return table ? table.number : tableId
   }
 
   const getMenuItemName = (menuItemId) => {
-    const item = menuItems?.find(m => m.id === menuItemId)
+    const item = menuItems?.find(m => m.id == menuItemId)
     return item ? item.name : 'Bilinmeyen Ürün'
   }
 
   const handlePrint = (order) => {
-    const table = tables?.find(t => t.id === order.tableId) || { number: order.tableId }
+    const table = tables?.find(t => t.id == order.tableId) || { number: order.tableId }
     const enriched = {
       ...order,
       items: order.items.map(item => {
-        const mi = menuItems?.find(m => m.id === item.menuItemId)
+        const mi = menuItems?.find(m => m.id == item.menuItemId)
         return { ...item, name: mi?.name || 'Ürün', price: item.price || mi?.price || 0 }
-      })
+      }),
     }
     printReceipt(enriched, table, { name: 'Lezzet Durağı' })
   }
+
+  const handleTransfer = (fromTableId, toTableId) => {
+    if (!tableOps?.order) return
+    transferOrder.mutate({
+      orderId: tableOps.order.id,
+      fromTableId,
+      toTableId,
+    })
+    setTableOps(null)
+  }
+
+  const handleSplitBill = (orderId, amounts) => {
+    const order = orders?.find(o => o.id === orderId)
+    if (!order) return
+    openPayment(order)
+    setSplitMode(true)
+    setSplitCount(amounts.length)
+    setTableOps(null)
+  }
+
+  const isPaying = createPayment.isPending || createSplitPayment.isPending || updateStatus.isPending
 
   if (isLoading) return <div className={styles.orders}>Yükleniyor...</div>
 
   return (
     <div className={styles.orders}>
-      {/* Header */}
       <div className={styles.ordersHeader}>
         <div>
           <h1>{t('orders.title')}</h1>
@@ -127,15 +218,14 @@ export default function Orders() {
         </button>
       </div>
 
-      {/* Filters */}
       <div className={styles.filters}>
         {[
-          { key: 'all',       label: 'Tümü'       },
-          { key: 'active',    label: 'Aktif'      },
-          { key: 'pending',   label: 'Bekliyor'   },
-          { key: 'preparing', label: 'Hazırlanıyor'},
-          { key: 'ready',     label: 'Hazır'      },
-          { key: 'completed', label: 'Tamamlandı' },
+          { key: 'all', label: 'Tümü' },
+          { key: 'active', label: 'Aktif' },
+          { key: 'pending', label: t('orders.statuses.pending') },
+          { key: 'preparing', label: t('orders.statuses.preparing') },
+          { key: 'ready', label: t('orders.statuses.ready') },
+          { key: 'completed', label: t('orders.statuses.completed') },
         ].map(({ key, label }) => (
           <button
             key={key}
@@ -147,7 +237,6 @@ export default function Orders() {
         ))}
       </div>
 
-      {/* Orders List */}
       <div className={styles.ordersList}>
         {filteredOrders.length === 0 ? (
           <div className={styles.emptyState}>
@@ -168,22 +257,28 @@ export default function Orders() {
                     <div className={styles.orderMeta}>
                       <span className={styles.orderTable}>Masa {getTableNumber(order.tableId)}</span>
                       <span className={styles.orderSep}>•</span>
-                      <span className={styles.orderTime}>
-                        <Clock size={14} />
-                        {formatTime(order.createdAt)}
-                      </span>
+                      <span className={styles.orderTime}><Clock size={14} />{formatTime(order.createdAt)}</span>
                       {order.waiter && (
                         <>
                           <span className={styles.orderSep}>•</span>
-                          <span className={styles.orderWaiter}>
-                            <User size={14} />
-                            {order.waiter}
-                          </span>
+                          <span className={styles.orderWaiter}><User size={14} />{order.waiter}</span>
                         </>
                       )}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {['served', 'ready', 'preparing'].includes(order.status) && (
+                      <button
+                        className={styles.printBtn}
+                        onClick={() => {
+                          const table = tables?.find(t => t.id == order.tableId)
+                          setTableOps({ table, order })
+                        }}
+                        title="Masa İşlemleri"
+                      >
+                        <ArrowRightLeft size={16} />
+                      </button>
+                    )}
                     <button className={styles.printBtn} onClick={() => handlePrint(order)} title="Fiş Yazdır">
                       <Printer size={16} />
                     </button>
@@ -213,34 +308,22 @@ export default function Orders() {
                     {order.status === 'pending' && (
                       <>
                         <button className={`${styles.actionBtn} ${styles.primary}`}
-                          onClick={() => handleStatusUpdate(order.id, 'preparing')}>
-                          Hazırlamaya Başla
-                        </button>
+                          onClick={() => handleStatusUpdate(order.id, 'preparing')}>Hazırlamaya Başla</button>
                         <button className={`${styles.actionBtn} ${styles.danger}`}
-                          onClick={() => handleCancel(order.id)}>
-                          İptal
-                        </button>
+                          onClick={() => handleCancel(order.id)}>İptal</button>
                       </>
                     )}
                     {order.status === 'preparing' && (
                       <button className={`${styles.actionBtn} ${styles.success}`}
-                        onClick={() => handleStatusUpdate(order.id, 'ready')}>
-                        Hazır
-                      </button>
+                        onClick={() => handleStatusUpdate(order.id, 'ready')}>Hazır</button>
                     )}
                     {order.status === 'ready' && (
                       <button className={`${styles.actionBtn} ${styles.success}`}
-                        onClick={() => handleStatusUpdate(order.id, 'served')}>
-                        Servis Et
-                      </button>
+                        onClick={() => handleStatusUpdate(order.id, 'served')}>Servis Et</button>
                     )}
                     {order.status === 'served' && (
-                      <button
-                        className={`${styles.actionBtn} ${styles.payment}`}
-                        onClick={() => { setPaymentOrder(order); setPaymentMethod('cash') }}
-                      >
-                        <Wallet size={16} />
-                        Ödeme Al
+                      <button className={`${styles.actionBtn} ${styles.payment}`} onClick={() => openPayment(order)}>
+                        <Wallet size={16} /> Ödeme Al
                       </button>
                     )}
                     {order.status === 'completed' && order.paymentMethod && (
@@ -257,21 +340,31 @@ export default function Orders() {
         )}
       </div>
 
+      {/* Masa İşlemleri Modal */}
+      {tableOps && (
+        <TableOperations
+          isOpen={!!tableOps}
+          onClose={() => setTableOps(null)}
+          currentTable={tableOps.table}
+          availableTables={tables}
+          order={tableOps.order}
+          onTransfer={handleTransfer}
+          onMerge={() => {}}
+          onSplit={handleSplitBill}
+        />
+      )}
+
       {/* Ödeme Modalı */}
       <AnimatePresence>
         {paymentOrder && (
           <>
-            <motion.div
-              className={styles.modalOverlay}
+            <motion.div className={styles.modalOverlay}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setPaymentOrder(null)}
-            />
-            <motion.div
-              className={styles.paymentModal}
+              onClick={resetPaymentModal} />
+            <motion.div className={styles.paymentModal}
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            >
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}>
               <div className={styles.paymentModalHeader}>
                 <div className={styles.paymentModalTitle}>
                   <Receipt size={22} />
@@ -280,12 +373,9 @@ export default function Orders() {
                     <p>Sipariş #{paymentOrder.id} • Masa {getTableNumber(paymentOrder.tableId)}</p>
                   </div>
                 </div>
-                <button className={styles.modalCloseBtn} onClick={() => setPaymentOrder(null)}>
-                  <X size={20} />
-                </button>
+                <button className={styles.modalCloseBtn} onClick={resetPaymentModal}><X size={20} /></button>
               </div>
 
-              {/* Sipariş Özeti */}
               <div className={styles.paymentItems}>
                 {paymentOrder.items.map((item, i) => (
                   <div key={i} className={styles.paymentItem}>
@@ -294,37 +384,82 @@ export default function Orders() {
                     <span className={styles.paymentItemPrice}>{formatCurrency(item.price * item.quantity)}</span>
                   </div>
                 ))}
+                <div className={styles.paymentSummaryRows}>
+                  <div className={styles.paymentSummaryRow}>
+                    <span>Ara Toplam</span>
+                    <span>{formatCurrency(paymentOrder.total)}</span>
+                  </div>
+                  {discountPercent > 0 && (
+                    <div className={styles.paymentSummaryRow}>
+                      <span>İndirim (%{discountPercent})</span>
+                      <span className={styles.discountAmount}>
+                        -{formatCurrency(paymentOrder.total * discountPercent / 100)}
+                      </span>
+                    </div>
+                  )}
+                  {tipAmount > 0 && (
+                    <div className={styles.paymentSummaryRow}>
+                      <span>Bahşiş</span>
+                      <span>{formatCurrency(tipAmount)}</span>
+                    </div>
+                  )}
+                </div>
                 <div className={styles.paymentTotal}>
                   <span>Toplam</span>
-                  <strong>{formatCurrency(paymentOrder.total)}</strong>
+                  <strong>{formatCurrency(finalTotal)}</strong>
                 </div>
               </div>
 
-              {/* Ödeme Yöntemi */}
+              {/* İndirim & Bahşiş */}
+              <div className={styles.extraPaymentFields}>
+                <div className={styles.extraField}>
+                  <label><Percent size={14} /> İndirim (%)</label>
+                  <input type="number" min="0" max="100" value={discountPercent}
+                    onChange={e => setDiscountPercent(Math.min(100, Math.max(0, Number(e.target.value))))} />
+                </div>
+                <div className={styles.extraField}>
+                  <label><DollarSign size={14} /> Bahşiş (₺)</label>
+                  <input type="number" min="0" value={tipAmount}
+                    onChange={e => setTipAmount(Math.max(0, Number(e.target.value)))} />
+                </div>
+              </div>
+
+              {/* Bölünmüş ödeme */}
+              <div className={styles.splitToggle}>
+                <button
+                  className={`${styles.splitToggleBtn} ${splitMode ? styles.active : ''}`}
+                  onClick={() => setSplitMode(!splitMode)}>
+                  <Split size={16} />
+                  Hesabı Böl
+                </button>
+                {splitMode && (
+                  <div className={styles.splitControl}>
+                    <button onClick={() => setSplitCount(Math.max(2, splitCount - 1))}>−</button>
+                    <span>{splitCount} kişi</span>
+                    <button onClick={() => setSplitCount(Math.min(10, splitCount + 1))}>+</button>
+                    <span className={styles.splitPerPerson}>
+                      Kişi başı: {formatCurrency(finalTotal / splitCount)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               <div className={styles.paymentMethodSection}>
                 <p className={styles.paymentMethodLabel}>Ödeme Yöntemi</p>
                 <div className={styles.paymentMethodGrid}>
                   {paymentMethods.map(({ id, label, icon: Icon }) => (
-                    <button
-                      key={id}
+                    <button key={id}
                       className={`${styles.paymentMethodBtn} ${paymentMethod === id ? styles.selected : ''}`}
-                      onClick={() => setPaymentMethod(id)}
-                    >
-                      <Icon size={24} />
-                      <span>{label}</span>
+                      onClick={() => setPaymentMethod(id)}>
+                      <Icon size={24} /><span>{label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Onayla */}
-              <button
-                className={styles.confirmPaymentBtn}
-                onClick={handlePaymentConfirm}
-                disabled={updateStatus.isPending}
-              >
+              <button className={styles.confirmPaymentBtn} onClick={handlePaymentConfirm} disabled={isPaying}>
                 <CheckCircle size={20} />
-                {updateStatus.isPending ? 'İşleniyor...' : `Ödemeyi Onayla — ${formatCurrency(paymentOrder.total)}`}
+                {isPaying ? 'İşleniyor...' : `Ödemeyi Onayla — ${formatCurrency(finalTotal)}`}
               </button>
             </motion.div>
           </>
