@@ -10,7 +10,9 @@ import {
   Clock,
   CreditCard,
   Banknote,
-  Smartphone
+  Smartphone,
+  Download,
+  Tag,
 } from 'lucide-react'
 import {
   BarChart,
@@ -26,7 +28,7 @@ import {
   Legend
 } from 'recharts'
 import { useOrders } from '../hooks/useOrders'
-import { useMenuItems } from '../hooks/useMenu'
+import { useMenuItems, useCategories } from '../hooks/useMenu'
 import styles from './DailyReport.module.css'
 
 const formatCurrency = (v) =>
@@ -77,6 +79,39 @@ function printReport(data, date) {
   setTimeout(() => win.print(), 400)
 }
 
+function exportCSV(data, date) {
+  const rows = [
+    ['Günlük Rapor', date],
+    [],
+    ['Metrik', 'Değer'],
+    ['Toplam Gelir', data.totalRevenue],
+    ['Toplam Sipariş', data.totalOrders],
+    ['Tamamlanan', data.completedOrders],
+    ['Ort. Sipariş', data.avgOrder],
+    ['İptal', data.cancelledOrders],
+    [],
+    ['En Çok Satan Ürünler'],
+    ['Ürün', 'Adet', 'Gelir'],
+    ...data.topItems.map(i => [i.name, i.count, i.revenue]),
+    [],
+    ['Kategori Satışları'],
+    ['Kategori', 'Adet', 'Gelir'],
+    ...data.categorySales.map(c => [c.name, c.count, c.revenue]),
+    [],
+    ['Ödeme Yöntemleri'],
+    ['Yöntem', 'İşlem', 'Tutar'],
+    ...data.paymentBreakdown.map(p => [p.name, p.count, p.total]),
+  ]
+  const csv = rows.map(r => r.join(',')).join('\n')
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `gunluk-rapor-${date.replace(/\s/g, '-')}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }
 
@@ -86,6 +121,7 @@ export default function DailyReport() {
 
   const { data: orders, isLoading } = useOrders()
   const { data: menuItems } = useMenuItems()
+  const { data: categories } = useCategories()
 
   const stats = useMemo(() => {
     if (!orders) return null
@@ -150,6 +186,24 @@ export default function DailyReport() {
 
     const pieData = paymentBreakdown.map(p => ({ name: p.name, value: p.total }))
 
+    // Kategori satışları
+    const catMap = {}
+    completed.forEach(o => {
+      o.items?.forEach(i => {
+        const mi = menuItems?.find(m => m.id == i.menuItemId)
+        const catId = mi?.categoryId || 'other'
+        if (!catMap[catId]) catMap[catId] = { count: 0, revenue: 0 }
+        catMap[catId].count += i.quantity
+        catMap[catId].revenue += i.price * i.quantity
+      })
+    })
+    const categorySales = Object.entries(catMap)
+      .map(([catId, v]) => {
+        const cat = categories?.find(c => c.id == catId)
+        return { name: cat?.name || 'Diğer', count: v.count, revenue: v.revenue }
+      })
+      .sort((a, b) => b.revenue - a.revenue)
+
     return {
       totalRevenue,
       totalOrders: dayOrders.length,
@@ -160,8 +214,9 @@ export default function DailyReport() {
       topItems,
       paymentBreakdown,
       pieData,
+      categorySales,
     }
-  }, [orders, menuItems, selectedDate])
+  }, [orders, menuItems, categories, selectedDate])
 
   const dateLabel = new Date(selectedDate).toLocaleDateString('tr-TR', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -185,6 +240,13 @@ export default function DailyReport() {
             max={new Date().toISOString().slice(0, 10)}
             className={styles.datePicker}
           />
+          <button
+            className={styles.csvBtn}
+            onClick={() => stats && exportCSV(stats, dateLabel)}
+          >
+            <Download size={18} />
+            CSV
+          </button>
           <button
             className={styles.printBtn}
             onClick={() => stats && printReport(stats, dateLabel)}
@@ -359,6 +421,32 @@ export default function DailyReport() {
                         <strong>{formatCurrency(stats.totalRevenue)}</strong>
                       </td>
                     </tr>
+                  </tbody>
+                </table>
+              )}
+            </motion.div>
+
+            {/* Kategori Satışları */}
+            <motion.div variants={item} className={`${styles.tableCard} ${styles.fullWidth}`}>
+              <div className={styles.tableCardHeader}>
+                <Tag size={18} />
+                <h3>Kategori Satışları</h3>
+              </div>
+              {stats.categorySales.length === 0 ? (
+                <div className={styles.noChartData}>Veri yok</div>
+              ) : (
+                <table className={styles.reportTable}>
+                  <thead>
+                    <tr><th>Kategori</th><th>Adet</th><th>Gelir</th></tr>
+                  </thead>
+                  <tbody>
+                    {stats.categorySales.map(c => (
+                      <tr key={c.name}>
+                        <td>{c.name}</td>
+                        <td><span className={styles.countBadge}>{c.count}</span></td>
+                        <td className={styles.revenueCell}>{formatCurrency(c.revenue)}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               )}

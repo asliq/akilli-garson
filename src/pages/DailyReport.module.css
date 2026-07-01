@@ -71,6 +71,26 @@
 
 .printBtn:hover { opacity: 0.85; }
 
+.csvBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--success);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.csvBtn:hover { opacity: 0.85; }
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
 /* KPI Grid */
 .kpiGrid {
   display: grid;

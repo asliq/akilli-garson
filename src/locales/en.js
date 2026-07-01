@@ -233,7 +233,9 @@ export const en = {
     total: 'Total',
     orderPlaced: 'Order placed',
     orderStatus: 'Order Status',
-    thankYou: 'Thank you'
+    thankYou: 'Thank you',
+    recentOrders: 'Order Again',
+    cancelOrder: 'Cancel Order',
   },
 
   // Voice Commands

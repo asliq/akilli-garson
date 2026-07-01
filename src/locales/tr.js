@@ -233,7 +233,9 @@ export const tr = {
     total: 'Toplam',
     orderPlaced: 'Siparişiniz alındı',
     orderStatus: 'Sipariş Durumu',
-    thankYou: 'Teşekkürler'
+    thankYou: 'Teşekkürler',
+    recentOrders: 'Tekrar Sipariş',
+    cancelOrder: 'Siparişi İptal Et',
   },
 
   // Voice Commands

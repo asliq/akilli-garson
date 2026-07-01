@@ -170,6 +170,7 @@ export function useCreatePayment() {
         credit_card: 'Kredi Kartı',
         debit_card: 'Banka Kartı',
         mobile: 'Mobil Ödeme',
+        online: 'Online',
       }
       
       toast.success(

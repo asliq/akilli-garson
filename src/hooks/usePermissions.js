@@ -3,7 +3,7 @@ import { useAppStore } from '../store/useAppStore'
 
 const ROLE_ACCESS = {
   admin: ['/', '/tables', '/orders', '/kitchen', '/menu', '/reservations', '/analytics', '/daily-report', '/waiters', '/inventory', '/settings'],
-  waiter: ['/', '/tables', '/orders', '/menu', '/reservations'],
+  waiter: ['/', '/tables', '/orders', '/kitchen', '/menu', '/reservations'],
   kitchen: ['/kitchen'],
 }
 
