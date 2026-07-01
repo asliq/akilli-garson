@@ -5,7 +5,7 @@ import {
   XCircle, RefreshCw, User, Printer, Wallet, DollarSign, X,
   Banknote, Receipt, Percent, Split, ArrowRightLeft
 } from 'lucide-react'
-import { useOrders, useUpdateOrderStatus, useTransferOrder } from '../hooks/useOrders'
+import { useOrders, useUpdateOrderStatus, useTransferOrder, useMergeOrders } from '../hooks/useOrders'
 import { useTables, useUpdateTableStatus } from '../hooks/useTables'
 import { useMenuItems } from '../hooks/useMenu'
 import { useCreatePayment, useCreateSplitPayment } from '../hooks/usePayments'
@@ -54,6 +54,7 @@ export default function Orders() {
   const createPayment = useCreatePayment()
   const createSplitPayment = useCreateSplitPayment()
   const transferOrder = useTransferOrder()
+  const mergeOrders = useMergeOrders()
   const { play } = useSoundEffects()
   const { t } = useTranslation()
 
@@ -181,6 +182,24 @@ export default function Orders() {
       }),
     }
     printReceipt(enriched, table, { name: 'Lezzet Durağı' })
+  }
+
+  const handleMerge = (fromTableId, toTableId) => {
+    if (!tableOps?.order || !orders) return
+    const targetOrder = orders.find(
+      o => o.tableId == toTableId && ['pending', 'preparing', 'ready', 'served'].includes(o.status)
+    )
+    if (!targetOrder) {
+      toast.error('Hedef masada aktif sipariş bulunamadı')
+      return
+    }
+    mergeOrders.mutate({
+      sourceOrderId: tableOps.order.id,
+      targetOrderId: targetOrder.id,
+      targetTableId: toTableId,
+      sourceTableId: fromTableId,
+    })
+    setTableOps(null)
   }
 
   const handleTransfer = (fromTableId, toTableId) => {
@@ -349,7 +368,7 @@ export default function Orders() {
           availableTables={tables}
           order={tableOps.order}
           onTransfer={handleTransfer}
-          onMerge={() => {}}
+          onMerge={handleMerge}
           onSplit={handleSplitBill}
         />
       )}

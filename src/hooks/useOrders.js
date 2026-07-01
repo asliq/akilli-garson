@@ -273,3 +273,37 @@ export function useTransferOrder() {
   })
 }
 
+// ==========================================
+// MASA BİRLEŞTİRME (siparişleri birleştir)
+// ==========================================
+export function useMergeOrders() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ sourceOrderId, targetOrderId, targetTableId, sourceTableId }) => {
+      const source = await ordersApi.getById(sourceOrderId)
+      const target = await ordersApi.getById(targetOrderId)
+
+      const mergedItems = [...target.items, ...source.items]
+      const mergedTotal = (target.total || 0) + (source.total || 0)
+
+      await ordersApi.update({
+        id: targetOrderId,
+        items: mergedItems,
+        total: mergedTotal,
+        tableId: targetTableId,
+      })
+      await ordersApi.updateStatus({ id: sourceOrderId, status: 'cancelled' })
+      await tablesApi.updateStatus({ id: sourceTableId, status: 'available' })
+      await tablesApi.updateStatus({ id: targetTableId, status: 'occupied' })
+
+      return { targetOrderId, mergedTotal }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: orderKeys.all })
+      queryClient.invalidateQueries({ queryKey: tableKeys.all })
+      toast.success('Masalar birleştirildi')
+    },
+    onError: () => toast.error('Birleştirme başarısız'),
+  })
+}
+
