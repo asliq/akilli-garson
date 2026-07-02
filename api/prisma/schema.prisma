@@ -1,0 +1,240 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// Tenant
+// =============================================================================
+
+/// SaaS multi-tenant kök aggregate
+model Restaurant {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  menuCategories         MenuCategory[]
+  menuItems              MenuItem[]
+  menuCategoryPlacements MenuCategoryPlacement[]
+  menuPrices             MenuPrice[]
+
+  @@map("restaurants")
+}
+
+// =============================================================================
+// Menu — Enums
+// =============================================================================
+
+enum MenuCategoryStatus {
+  ACTIVE   @map("active")
+  HIDDEN   @map("hidden")
+  ARCHIVED @map("archived")
+
+  @@map("menu_category_status")
+}
+
+enum MenuItemStatus {
+  DRAFT        @map("draft")
+  ACTIVE       @map("active")
+  OUT_OF_STOCK @map("out_of_stock")
+  HIDDEN       @map("hidden")
+  ARCHIVED     @map("archived")
+
+  @@map("menu_item_status")
+}
+
+enum MenuItemType {
+  SIMPLE @map("simple")
+  COMBO  @map("combo")
+
+  @@map("menu_item_type")
+}
+
+enum MenuPriceStatus {
+  SCHEDULED  @map("scheduled")
+  ACTIVE     @map("active")
+  EXPIRED    @map("expired")
+  SUPERSEDED @map("superseded")
+
+  @@map("menu_price_status")
+}
+
+// =============================================================================
+// Menu — Category Aggregate
+// =============================================================================
+
+/// Kategori aggregate root — gruplama ve görünürlük; MenuItem'dan bağımsız lifecycle
+model MenuCategory {
+  id String @id @default(uuid()) @db.Uuid
+
+  restaurantId String     @map("restaurant_id") @db.Uuid
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
+
+  branchId String? @map("branch_id") @db.Uuid
+
+  name        String  @db.VarChar(150)
+  slug        String  @db.VarChar(150)
+  description String? @db.Text
+  icon        String? @db.VarChar(50)
+  color       String? @db.VarChar(7)
+
+  displayOrder Int                @default(0) @map("display_order")
+  status       MenuCategoryStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdBy String?  @map("created_by") @db.Uuid
+  updatedBy String?  @map("updated_by") @db.Uuid
+
+  deletedAt DateTime? @map("deleted_at")
+  version   Int       @default(1)
+
+  placements MenuCategoryPlacement[]
+
+  @@unique([restaurantId, slug], map: "uq_menu_categories_restaurant_slug")
+  @@unique([restaurantId, branchId, name], map: "uq_menu_categories_restaurant_branch_name")
+  @@index([restaurantId, displayOrder], map: "idx_menu_categories_restaurant_order")
+  @@index([restaurantId, branchId], map: "idx_menu_categories_branch")
+  @@index([restaurantId, status], map: "idx_menu_categories_restaurant_status")
+  @@index([restaurantId, deletedAt], map: "idx_menu_categories_restaurant_not_deleted")
+  @@map("menu_categories")
+}
+
+// =============================================================================
+// Menu — MenuItem Aggregate
+// =============================================================================
+
+/// Ürün aggregate root — fiyat (MenuPrice) bu aggregate içinde; Order FK yok (snapshot)
+model MenuItem {
+  id String @id @default(uuid()) @db.Uuid
+
+  restaurantId String     @map("restaurant_id") @db.Uuid
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
+
+  itemType MenuItemType   @default(SIMPLE) @map("item_type")
+  status   MenuItemStatus @default(DRAFT)
+
+  sku         String  @db.VarChar(50)
+  name        String  @db.VarChar(200)
+  slug        String? @db.VarChar(200)
+  description String? @db.Text
+  imageUrl    String? @map("image_url") @db.VarChar(2048)
+
+  /// Settings BC referansı — Tax modeli sonra eklenecek
+  taxCategoryId String? @map("tax_category_id") @db.Uuid
+
+  /// Kitchen BC referansı — KitchenStation modeli sonra eklenecek
+  kitchenStationId String? @map("kitchen_station_id") @db.Uuid
+
+  preparationTimeSeconds Int? @map("preparation_time_seconds")
+  caloriesKcal           Int? @map("calories_kcal")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdBy String?  @map("created_by") @db.Uuid
+  updatedBy String?  @map("updated_by") @db.Uuid
+
+  deletedAt DateTime? @map("deleted_at")
+  version   Int       @default(1)
+
+  placements MenuCategoryPlacement[]
+  prices     MenuPrice[]
+
+  @@unique([restaurantId, sku], map: "uq_menu_items_restaurant_sku")
+  @@unique([restaurantId, slug], map: "uq_menu_items_restaurant_slug")
+  @@index([restaurantId, status], map: "idx_menu_items_restaurant_status")
+  @@index([restaurantId, deletedAt], map: "idx_menu_items_restaurant_not_deleted")
+  @@index([restaurantId, itemType], map: "idx_menu_items_restaurant_type")
+  @@index([restaurantId, name], map: "idx_menu_items_restaurant_name")
+  @@map("menu_items")
+}
+
+// =============================================================================
+// Menu — Category ↔ MenuItem Link (N:M)
+// =============================================================================
+
+/// Kategori–ürün yerleşimi — iki aggregate arasındaki tek bağlantı noktası
+/// isPrimary=true olan kayıt raporlama için birincil kategori
+model MenuCategoryPlacement {
+  id String @id @default(uuid()) @db.Uuid
+
+  restaurantId String     @map("restaurant_id") @db.Uuid
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
+
+  categoryId String       @map("category_id") @db.Uuid
+  category   MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  menuItemId String   @map("menu_item_id") @db.Uuid
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+
+  displayOrder Int     @default(0) @map("display_order")
+  isPrimary    Boolean @default(false) @map("is_primary")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([categoryId, menuItemId], map: "uq_menu_category_placements_category_item")
+  @@index([categoryId, displayOrder], map: "idx_menu_category_placements_category_order")
+  @@index([menuItemId], map: "idx_menu_category_placements_menu_item")
+  @@index([restaurantId, categoryId], map: "idx_menu_category_placements_restaurant_category")
+  @@index([restaurantId, menuItemId], map: "idx_menu_category_placements_restaurant_item")
+  @@map("menu_category_placements")
+}
+
+// =============================================================================
+// Menu — MenuPrice (MenuItem aggregate child — Money VO)
+// =============================================================================
+
+/// Context-aware fiyat — branch/channel NULL = restaurant baz fiyatı
+model MenuPrice {
+  id String @id @default(uuid()) @db.Uuid
+
+  restaurantId String     @map("restaurant_id") @db.Uuid
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
+
+  menuItemId String   @map("menu_item_id") @db.Uuid
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+
+  /// Money VO — kuruş/cent (ör. 85,50 TL → 8550)
+  amountMinor  BigInt @map("amount_minor")
+  currencyCode String @default("TRY") @map("currency_code") @db.Char(3)
+
+  status MenuPriceStatus @default(ACTIVE)
+
+  /// NULL = tüm şubeler; Branch modeli sonra eklenecek
+  branchId String? @map("branch_id") @db.Uuid
+
+  /// NULL = tüm kanallar; SalesChannel modeli sonra eklenecek
+  salesChannelId String? @map("sales_channel_id") @db.Uuid
+
+  priority  Int       @default(0) @db.SmallInt
+  validFrom DateTime? @map("valid_from")
+  validTo   DateTime? @map("valid_to")
+  label     String?   @db.VarChar(100)
+
+  supersededById String?    @map("superseded_by_id") @db.Uuid
+  supersededBy   MenuPrice? @relation("MenuPriceSupersession", fields: [supersededById], references: [id], onDelete: SetNull)
+  superseded     MenuPrice[] @relation("MenuPriceSupersession")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdBy String?  @map("created_by") @db.Uuid
+  updatedBy String?  @map("updated_by") @db.Uuid
+
+  deletedAt DateTime? @map("deleted_at")
+  version   Int       @default(1)
+
+  @@index([menuItemId, status], map: "idx_menu_prices_item_status")
+  @@index([menuItemId, branchId, salesChannelId, status], map: "idx_menu_prices_resolve")
+  @@index([restaurantId, status], map: "idx_menu_prices_restaurant_status")
+  @@index([restaurantId, deletedAt], map: "idx_menu_prices_restaurant_not_deleted")
+  @@index([validFrom], map: "idx_menu_prices_valid_from")
+  @@map("menu_prices")
+}
