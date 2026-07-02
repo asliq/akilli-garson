@@ -194,4 +194,5 @@ npm run preview      # Build önizleme
 ## İlgili Dokümanlar
 
 - [Ana Proje Raporu](./PROJE-RAPORU.md)
+- [Domain Model Analizi](./DOMAIN-ANALIZI.md)
 - [Geliştirme Yol Haritası](./YOL-HARITASI.md)

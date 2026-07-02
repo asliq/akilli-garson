@@ -329,6 +329,7 @@ npm run dev:all
 ## İlgili Dokümanlar
 
 - [Teknik Durum Raporu](./TEKNIK-DURUM.md)
+- [Domain Model Analizi](./DOMAIN-ANALIZI.md)
 - [Geliştirme Yol Haritası](./YOL-HARITASI.md)
 
 ---

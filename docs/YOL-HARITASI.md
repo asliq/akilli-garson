@@ -302,3 +302,4 @@ M5 ─── 10+ restoran (Faz 5)
 
 - [Ana Proje Raporu](./PROJE-RAPORU.md)
 - [Teknik Durum Raporu](./TEKNIK-DURUM.md)
+- [Domain Model Analizi](./DOMAIN-ANALIZI.md)
