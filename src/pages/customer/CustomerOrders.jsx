@@ -96,8 +96,9 @@ export default function CustomerOrders() {
   const createServiceCall = useCreateServiceCall()
   const { t } = useTranslation()
 
-  const getItemName = (menuItemId) => {
-    const mi = menuItems?.find(m => m.id === menuItemId || m.id === parseInt(menuItemId))
+  const getItemName = (menuItemId, item) => {
+    if (item?.name) return item.name
+    const mi = menuItems?.find((m) => m.id === menuItemId || m.id === String(menuItemId))
     return mi ? mi.name : `Ürün #${menuItemId}`
   }
 
@@ -111,9 +112,12 @@ export default function CustomerOrders() {
   }, [navigate])
 
   // Sadece bu masanın siparişlerini filtrele
-  const orders = allOrders?.filter(order => 
-    order.tableId === customerTable?.tableId
-  ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) || []
+  const orders = allOrders?.filter((order) => {
+    if (customerTable?.tableId) {
+      return order.tableId === customerTable.tableId
+    }
+    return true
+  }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) || []
 
   const activeOrders = orders.filter(o => 
     ['pending', 'preparing', 'ready', 'served'].includes(o.status)
@@ -215,7 +219,7 @@ export default function CustomerOrders() {
                   {order.items.slice(0, 3).map((item, index) => (
                     <div key={index} className={styles.orderItem}>
                       <span className={styles.itemQuantity}>{item.quantity}x</span>
-                      <span className={styles.itemName}>{getItemName(item.menuItemId)}</span>
+                      <span className={styles.itemName}>{getItemName(item.menuItemId, item)}</span>
                     </div>
                   ))}
                   {order.items.length > 3 && (
@@ -363,7 +367,7 @@ export default function CustomerOrders() {
                 {selectedOrder.items.map((item, index) => (
                   <div key={index} className={styles.detailItem}>
                     <span className={styles.detailQuantity}>{item.quantity}x</span>
-                    <span className={styles.detailName}>{getItemName(item.menuItemId)}</span>
+                    <span className={styles.detailName}>{getItemName(item.menuItemId, item)}</span>
                     <span className={styles.detailPrice}>
                       {formatCurrency(item.price * item.quantity)}
                     </span>

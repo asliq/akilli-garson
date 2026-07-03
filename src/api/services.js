@@ -1,109 +1,138 @@
-import axiosInstance from './axios'
+import axiosInstance, { setRestaurantId } from './axios'
+import {
+  majorToMinor,
+  mapCategory,
+  mapMenuItem,
+  mapOrder,
+  mapPublicMenuItem,
+  mapPublicOrder,
+  toApiOrderStatus,
+} from './adapters'
 
-// ==========================================
-// MASA (TABLES) SERVİSLERİ
-// ==========================================
-export const tablesApi = {
-  // Tüm masaları getir
-  getAll: async () => {
-    const { data } = await axiosInstance.get('/tables')
-    return data
-  },
-  
-  // Tek masa getir
-  getById: async (id) => {
-    const { data } = await axiosInstance.get(`/tables/${id}`)
-    return data
-  },
-  
-  // Masa durumunu güncelle
-  updateStatus: async ({ id, status }) => {
-    const { data } = await axiosInstance.patch(`/tables/${id}`, { status })
-    return data
-  },
-  
-  // Yeni masa ekle
-  create: async (table) => {
-    const { data } = await axiosInstance.post('/tables', table)
-    return data
-  },
-  
-  // Masa sil
-  delete: async (id) => {
-    await axiosInstance.delete(`/tables/${id}`)
-    return id
-  },
-}
+export { setRestaurantId }
 
 // ==========================================
 // KATEGORİ SERVİSLERİ
 // ==========================================
 export const categoriesApi = {
   getAll: async () => {
-    const { data } = await axiosInstance.get('/categories')
-    return data
+    const { data } = await axiosInstance.get('/menu/categories')
+    return (data || []).map(mapCategory)
   },
-  
+
   getById: async (id) => {
-    const { data } = await axiosInstance.get(`/categories/${id}`)
-    return data
+    const { data } = await axiosInstance.get(`/menu/categories/${id}`)
+    return mapCategory(data)
   },
 }
 
 // ==========================================
-// MENÜ SERVİSLERİ
+// MENÜ SERVİSLERİ (Staff)
 // ==========================================
 export const menuApi = {
-  // Tüm menü öğelerini getir
   getAll: async () => {
-    const { data } = await axiosInstance.get('/menuItems')
-    return data
+    const categories = await categoriesApi.getAll()
+    const itemMap = new Map()
+
+    await Promise.all(
+      categories.map(async (category) => {
+        const { data } = await axiosInstance.get('/menu/items', {
+          params: { categoryId: category.id },
+        })
+
+        ;(data || []).forEach((item) => {
+          if (!itemMap.has(item.id)) {
+            itemMap.set(item.id, mapMenuItem(item, category.id))
+          }
+        })
+      }),
+    )
+
+    if (itemMap.size === 0) {
+      const { data } = await axiosInstance.get('/menu/items')
+      return (data || []).map((item) => mapMenuItem(item))
+    }
+
+    return Array.from(itemMap.values())
   },
-  
-  // Kategoriye göre menü öğelerini getir
+
   getByCategory: async (categoryId) => {
-    const { data } = await axiosInstance.get(`/menuItems?categoryId=${categoryId}`)
-    return data
-  },
-  
-  // Tek menü öğesi getir
-  getById: async (id) => {
-    const { data } = await axiosInstance.get(`/menuItems/${id}`)
-    return data
-  },
-  
-  // Menü öğesi stok durumunu güncelle
-  updateAvailability: async ({ id, isAvailable }) => {
-    const { data } = await axiosInstance.patch(`/menuItems/${id}`, { isAvailable })
-    return data
-  },
-  
-  // Menü öğesi fiyatını güncelle
-  updatePrice: async ({ id, price }) => {
-    const { data } = await axiosInstance.patch(`/menuItems/${id}`, { price })
-    return data
-  },
-
-  // Yeni menü öğesi oluştur
-  create: async (item) => {
-    const { data } = await axiosInstance.post('/menuItems', {
-      ...item,
-      isAvailable: item.isAvailable ?? true,
-      createdAt: new Date().toISOString(),
+    const { data } = await axiosInstance.get('/menu/items', {
+      params: { categoryId },
     })
-    return data
+    return (data || []).map((item) => mapMenuItem(item, categoryId))
   },
 
-  // Menü öğesi sil
-  delete: async (id) => {
-    await axiosInstance.delete(`/menuItems/${id}`)
-    return id
+  getById: async (id) => {
+    const { data } = await axiosInstance.get(`/menu/items/${id}`)
+    return mapMenuItem(data)
   },
 
-  // Menü öğesini tam güncelle
-  update: async ({ id, ...item }) => {
-    const { data } = await axiosInstance.patch(`/menuItems/${id}`, item)
-    return data
+  updateAvailability: async ({ id, isAvailable }) => {
+    throw new Error('Ürün stok durumu API üzerinden henüz desteklenmiyor')
+  },
+
+  updatePrice: async ({ id, price }) => {
+    const { data } = await axiosInstance.patch(`/menu/items/${id}/price`, {
+      amountMinor: majorToMinor(price),
+    })
+    return mapMenuItem(data)
+  },
+
+  create: async (item) => {
+    const sku =
+      item.sku ||
+      `${item.name
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '')
+        .slice(0, 20)}-${Date.now().toString().slice(-4)}`
+
+    const { data } = await axiosInstance.post('/menu/items', {
+      name: item.name,
+      sku,
+      amountMinor: majorToMinor(item.price),
+      description: item.description || undefined,
+      imageUrl: item.image || undefined,
+      preparationTimeSeconds: (item.preparationTime || 10) * 60,
+    })
+
+    if (item.categoryId) {
+      await axiosInstance.post(`/menu/items/${data.id}/categories`, {
+        categoryId: item.categoryId,
+        isPrimary: true,
+      })
+    }
+
+    return mapMenuItem(data, item.categoryId)
+  },
+
+  delete: async () => {
+    throw new Error('Ürün silme API üzerinden henüz desteklenmiyor')
+  },
+
+  update: async () => {
+    throw new Error('Ürün güncelleme API üzerinden henüz desteklenmiyor')
+  },
+}
+
+// ==========================================
+// PUBLIC MENÜ (QR)
+// ==========================================
+export const publicMenuApi = {
+  getByTableToken: async (tableToken) => {
+    const { data } = await axiosInstance.get(`/public/menu/${encodeURIComponent(tableToken)}`)
+
+    const categories = (data.categories || []).map(mapCategory)
+    const menuItems = (data.categories || []).flatMap((category) =>
+      (category.items || []).map((item) => mapPublicMenuItem(item, category.id)),
+    )
+
+    return {
+      restaurantName: data.restaurantName,
+      tableName: data.tableName,
+      categories,
+      menuItems,
+    }
   },
 }
 
@@ -111,231 +140,128 @@ export const menuApi = {
 // SİPARİŞ SERVİSLERİ
 // ==========================================
 export const ordersApi = {
-  // Tüm siparişleri getir
   getAll: async () => {
     const { data } = await axiosInstance.get('/orders')
-    return data
+    return (data || []).map(mapOrder)
   },
-  
-  // Masa siparişlerini getir
+
   getByTable: async (tableId) => {
-    const { data } = await axiosInstance.get(`/orders?tableId=${tableId}`)
-    return data
+    const { data } = await axiosInstance.get('/orders', {
+      params: { tableId },
+    })
+    return (data || []).map(mapOrder)
   },
-  
-  // Duruma göre siparişleri getir
+
   getByStatus: async (status) => {
-    const { data } = await axiosInstance.get(`/orders?status=${status}`)
-    return data
+    const { data } = await axiosInstance.get('/orders', {
+      params: { status: toApiOrderStatus(status) },
+    })
+    return (data || []).map(mapOrder)
   },
-  
-  // Tek sipariş getir
+
   getById: async (id) => {
     const { data } = await axiosInstance.get(`/orders/${id}`)
-    return data
+    return mapOrder(data)
   },
-  
-  // Yeni sipariş oluştur
+
   create: async (order) => {
-    const { data } = await axiosInstance.post('/orders', {
-      ...order,
-      createdAt: new Date().toISOString(),
+    const { data } = await axiosInstance.post('/public/orders', {
+      tableToken: order.tableToken,
+      lines: order.lines,
     })
-    return data
-  },
-  
-  // Sipariş durumunu güncelle
-  updateStatus: async ({ id, status, ...rest }) => {
-    const { data } = await axiosInstance.patch(`/orders/${id}`, { status, ...rest })
-    return data
+    return mapPublicOrder(data)
   },
 
-  // Genel sipariş güncelleme (transfer, birleştirme vb.)
-  update: async ({ id, ...updates }) => {
-    const { data } = await axiosInstance.patch(`/orders/${id}`, updates)
-    return data
+  createPublic: async ({ tableToken, lines }) => {
+    const { data } = await axiosInstance.post('/public/orders', {
+      tableToken,
+      lines: lines.map((line) => ({
+        menuItemId: line.menuItemId,
+        quantity: line.quantity,
+      })),
+    })
+    return mapPublicOrder(data)
   },
-  
-  // Siparişe ürün ekle
-  addItem: async ({ orderId, item }) => {
-    const order = await ordersApi.getById(orderId)
-    const updatedItems = [...order.items, item]
-    const { data } = await axiosInstance.patch(`/orders/${orderId}`, { items: updatedItems })
-    return data
+
+  updateStatus: async ({ id, status }) => {
+    const { data } = await axiosInstance.patch(`/orders/${id}/status`, {
+      status: toApiOrderStatus(status),
+    })
+    return mapOrder(data)
   },
-  
-  // Siparişten ürün çıkar
-  removeItem: async ({ orderId, menuItemId }) => {
-    const order = await ordersApi.getById(orderId)
-    const updatedItems = order.items.filter(item => item.menuItemId !== menuItemId)
-    const { data } = await axiosInstance.patch(`/orders/${orderId}`, { items: updatedItems })
-    return data
+
+  update: async () => {
+    throw new Error('Sipariş güncelleme API üzerinden henüz desteklenmiyor')
   },
-  
-  // Sipariş sil
-  delete: async (id) => {
-    await axiosInstance.delete(`/orders/${id}`)
-    return id
+
+  addItem: async () => {
+    throw new Error('Siparişe ürün ekleme API üzerinden henüz desteklenmiyor')
+  },
+
+  removeItem: async () => {
+    throw new Error('Siparişten ürün çıkarma API üzerinden henüz desteklenmiyor')
+  },
+
+  delete: async () => {
+    throw new Error('Sipariş silme API üzerinden henüz desteklenmiyor')
   },
 }
 
 // ==========================================
-// GARSON SERVİSLERİ
+// LEGACY STUBS (diğer ekranlar — henüz NestJS yok)
 // ==========================================
+const notImplemented = (resource) => async () => {
+  throw new Error(`${resource} API henüz NestJS'e taşınmadı`)
+}
+
+export const tablesApi = {
+  getAll: notImplemented('Masalar'),
+  getById: notImplemented('Masalar'),
+  updateStatus: notImplemented('Masalar'),
+  create: notImplemented('Masalar'),
+  delete: notImplemented('Masalar'),
+}
+
 export const waitersApi = {
-  getAll: async () => {
-    const { data } = await axiosInstance.get('/waiters')
-    return data
-  },
-
-  getById: async (id) => {
-    const { data } = await axiosInstance.get(`/waiters/${id}`)
-    return data
-  },
-
-  create: async (waiterData) => {
-    const { data } = await axiosInstance.post('/waiters', waiterData)
-    return data
-  },
-
-  update: async ({ id, ...updates }) => {
-    const { data } = await axiosInstance.patch(`/waiters/${id}`, updates)
-    return data
-  },
-
-  delete: async (id) => {
-    await axiosInstance.delete(`/waiters/${id}`)
-    return id
-  },
+  getAll: notImplemented('Garsonlar'),
+  getById: notImplemented('Garsonlar'),
+  create: notImplemented('Garsonlar'),
+  update: notImplemented('Garsonlar'),
+  delete: notImplemented('Garsonlar'),
 }
 
-// ==========================================
-// UNIFIED API EXPORT
-// ==========================================
-// ==========================================
-// DİSCOUNTS SERVİSLERİ
-// ==========================================
 export const discountsApi = {
-  getAll: async () => {
-    const { data } = await axiosInstance.get('/discounts')
-    return data
-  },
-  
-  getActive: async () => {
-    const { data } = await axiosInstance.get('/discounts')
-    const now = new Date()
-    return data.filter(discount => {
-      if (!discount.isActive) return false
-      const start = new Date(discount.startDate)
-      const end = new Date(discount.endDate)
-      return now >= start && now <= end
-    })
-  },
-  
-  getByCode: async (code) => {
-    const { data } = await axiosInstance.get(`/discounts?code=${code}`)
-    return data[0] || null
-  },
-  
-  create: async (discount) => {
-    const { data } = await axiosInstance.post('/discounts', {
-      ...discount,
-      id: `DISC-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      usedCount: 0
-    })
-    return data
-  },
-  
-  update: async (id, discount) => {
-    const { data } = await axiosInstance.patch(`/discounts/${id}`, discount)
-    return data
-  },
-  
-  delete: async (id) => {
-    await axiosInstance.delete(`/discounts/${id}`)
-    return id
-  },
+  getAll: notImplemented('İndirimler'),
+  getActive: notImplemented('İndirimler'),
+  getByCode: notImplemented('İndirimler'),
+  create: notImplemented('İndirimler'),
+  update: notImplemented('İndirimler'),
+  delete: notImplemented('İndirimler'),
 }
 
-// ==========================================
-// INVENTORY SERVİSLERİ
-// ==========================================
 export const inventoryApi = {
-  getAll: async () => {
-    const { data } = await axiosInstance.get('/inventory')
-    return data
-  },
-  
-  getLowStock: async () => {
-    const { data } = await axiosInstance.get('/inventory')
-    return data.filter(item => item.quantity <= item.minStock)
-  },
-  
-  create: async (item) => {
-    const { data } = await axiosInstance.post('/inventory', {
-      ...item,
-      id: `INV-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    })
-    return data
-  },
-  
-  update: async (id, item) => {
-    const { data } = await axiosInstance.patch(`/inventory/${id}`, {
-      ...item,
-      updatedAt: new Date().toISOString()
-    })
-    return data
-  },
-  
-  delete: async (id) => {
-    await axiosInstance.delete(`/inventory/${id}`)
-    return id
-  },
+  getAll: notImplemented('Envanter'),
+  getLowStock: notImplemented('Envanter'),
+  create: notImplemented('Envanter'),
+  update: notImplemented('Envanter'),
+  delete: notImplemented('Envanter'),
 }
 
-// ==========================================
-// GARSON ÇAĞRISI / SERVİS TALEPLERİ
-// ==========================================
 export const serviceCallsApi = {
-  getAll: async () => {
-    const { data } = await axiosInstance.get('/serviceCalls')
-    return data
-  },
-
-  getPending: async () => {
-    const { data } = await axiosInstance.get('/serviceCalls?status=pending')
-    return data
-  },
-
-  create: async (call) => {
-    const { data } = await axiosInstance.post('/serviceCalls', {
-      ...call,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    })
-    return data
-  },
-
-  markHandled: async (id) => {
-    const { data } = await axiosInstance.patch(`/serviceCalls/${id}`, {
-      status: 'handled',
-      handledAt: new Date().toISOString(),
-    })
-    return data
-  },
+  getAll: notImplemented('Servis çağrıları'),
+  getPending: notImplemented('Servis çağrıları'),
+  create: notImplemented('Servis çağrıları'),
+  markHandled: notImplemented('Servis çağrıları'),
 }
 
 export const api = {
   tables: tablesApi,
   categories: categoriesApi,
   menu: menuApi,
+  publicMenu: publicMenuApi,
   orders: ordersApi,
   waiters: waitersApi,
   discounts: discountsApi,
   inventory: inventoryApi,
   serviceCalls: serviceCallsApi,
 }
-

@@ -1,52 +1,40 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import api from '../api/axios'
+import { setRestaurantId } from '../api/axios'
 import { useAppStore } from '../store/useAppStore'
 import toast from 'react-hot-toast'
 
-// ==========================================
-// AUTH API SERVİSLERİ
-// ==========================================
+const DEMO_WAITERS = [
+  { id: '1', name: 'Ahmet', email: 'ahmet@restoran.com', role: 'waiter', avatar: '👨‍🍳' },
+  { id: '2', name: 'Ayşe', email: 'ayse@restoran.com', role: 'manager', avatar: '👩‍💼' },
+]
+
 const authApi = {
-  // Garson listesini al
-  getWaiters: async () => {
-    const { data } = await api.get('/waiters')
-    return data
-  },
-  
-  // Email ve PIN ile giriş yap
   login: async ({ email, pin }) => {
-    // Simüle edilmiş login - gerçek uygulamada backend'de yapılır
-    const { data: waiters } = await api.get('/waiters')
-    
-    const waiter = waiters.find(w => w.email === email)
-    
+    const waiter = DEMO_WAITERS.find((w) => w.email === email)
+
     if (!waiter) {
       throw new Error('Kullanıcı bulunamadı')
     }
-    
-    // Demo için PIN kontrolü (gerçek uygulamada hash karşılaştırması yapılır)
+
     if (pin !== '1234') {
       throw new Error('Yanlış PIN kodu')
     }
-    
-    // Başarılı giriş
+
+    const restaurantId = import.meta.env.VITE_RESTAURANT_ID
+    if (restaurantId) {
+      setRestaurantId(restaurantId)
+    }
+
     return {
       ...waiter,
       token: `demo-token-${waiter.id}-${Date.now()}`,
       loginAt: new Date().toISOString(),
     }
   },
-  
-  // Oturumu kontrol et
+
   validateSession: async (waiterId) => {
     if (!waiterId) return null
-    
-    try {
-      const { data } = await api.get(`/waiters/${waiterId}`)
-      return data
-    } catch {
-      return null
-    }
+    return DEMO_WAITERS.find((w) => w.id === waiterId) || null
   },
 }
 
@@ -133,7 +121,7 @@ export function useLogout() {
 export function useWaiters(options = {}) {
   return useQuery({
     queryKey: authKeys.waiters(),
-    queryFn: authApi.getWaiters,
+    queryFn: async () => DEMO_WAITERS,
     staleTime: 1000 * 60 * 10,
     ...options,
   })

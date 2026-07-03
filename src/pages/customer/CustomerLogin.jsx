@@ -9,7 +9,6 @@ import {
   Loader2,
   AlertCircle
 } from 'lucide-react'
-import { useTables } from '../../hooks/useTables'
 import styles from './CustomerLogin.module.css'
 
 export default function CustomerLogin() {
@@ -19,59 +18,59 @@ export default function CustomerLogin() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const { data: tables } = useTables()
-
-  // QR koddan gelen ?table= parametresini oku ve otomatik giriş yap
+  // QR koddan gelen ?token= parametresini oku
   useEffect(() => {
+    const tokenParam = searchParams.get('token')
+    if (tokenParam) {
+      localStorage.setItem(
+        'customerTable',
+        JSON.stringify({
+          tableToken: tokenParam,
+          tableNumber: searchParams.get('table') || tokenParam,
+          sessionStart: new Date().toISOString(),
+        }),
+      )
+      navigate('/customer/menu')
+      return
+    }
+
     const tableParam = searchParams.get('table')
-    if (!tableParam || !tables) return
-
-    const table = tables.find(t => t.id === parseInt(tableParam) || t.number === parseInt(tableParam))
-    if (!table) return
-
-    localStorage.setItem('customerTable', JSON.stringify({
-      tableId: table.id,
-      tableNumber: table.number,
-      section: table.section,
-      capacity: table.capacity,
-      sessionStart: new Date().toISOString()
-    }))
-    navigate('/customer/menu')
-  }, [searchParams, tables, navigate])
+    const tokenFromTable = searchParams.get('tableToken')
+    if (tokenFromTable) {
+      localStorage.setItem(
+        'customerTable',
+        JSON.stringify({
+          tableToken: tokenFromTable,
+          tableNumber: tableParam || tokenFromTable,
+          sessionStart: new Date().toISOString(),
+        }),
+      )
+      navigate('/customer/menu')
+    }
+  }, [searchParams, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    
+
     if (!tableNumber) {
-      setError('Lütfen masa numarasını girin')
+      setError('Lütfen masa QR kodunu girin')
       return
     }
 
     setIsLoading(true)
-    
-    // Masa kontrolü
-    const table = tables?.find(t => t.number === parseInt(tableNumber))
-    
-    setTimeout(() => {
-      if (!table) {
-        setError('Bu masa numarası bulunamadı')
-        setIsLoading(false)
-        return
-      }
 
-      // Müşteri oturumunu localStorage'a kaydet
-      localStorage.setItem('customerTable', JSON.stringify({
-        tableId: table.id,
-        tableNumber: table.number,
-        section: table.section,
-        capacity: table.capacity,
-        sessionStart: new Date().toISOString()
-      }))
+    localStorage.setItem(
+      'customerTable',
+      JSON.stringify({
+        tableToken: tableNumber.trim(),
+        tableNumber: tableNumber.trim(),
+        sessionStart: new Date().toISOString(),
+      }),
+    )
 
-      setIsLoading(false)
-      navigate(`/customer/menu`)
-    }, 500)
+    setIsLoading(false)
+    navigate('/customer/menu')
   }
 
   const handleQuickSelect = (num) => {
@@ -125,7 +124,7 @@ export default function CustomerLogin() {
               <span>Masa Numarası</span>
             </label>
             <input
-              type="number"
+              type="text"
               placeholder="Örn: 5"
               value={tableNumber}
               onChange={(e) => setTableNumber(e.target.value)}

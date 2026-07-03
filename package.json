@@ -7,8 +7,6 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "node server/index.js",
-    "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
     "screenshots": "node scripts/capture-screenshots.mjs"
   },
   "dependencies": {
@@ -32,8 +30,6 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
-    "concurrently": "^9.2.3",
-    "json-server": "^1.0.0-beta.3",
     "vite": "^6.0.5"
   }
 }

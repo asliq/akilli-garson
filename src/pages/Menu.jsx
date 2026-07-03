@@ -368,7 +368,7 @@ export default function Menu() {
                   <label>Kategori *</label>
                   <select
                     value={addForm.categoryId || ''}
-                    onChange={e => setAddForm(p => ({ ...p, categoryId: parseInt(e.target.value) }))}
+                    onChange={e => setAddForm(p => ({ ...p, categoryId: e.target.value }))}
                     required
                   >
                     <option value="">Kategori seçin...</option>

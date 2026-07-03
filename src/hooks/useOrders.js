@@ -67,30 +67,50 @@ export function useOrder(id, options = {}) {
 }
 
 // ==========================================
-// YENİ SİPARİŞ OLUŞTUR
+// YENİ SİPARİŞ OLUŞTUR (Public QR)
+// ==========================================
+export function useCreatePublicOrder() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ordersApi.createPublic,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: orderKeys.all })
+      toast.success('Sipariş oluşturuldu! 🎉')
+    },
+
+    onError: (error) => {
+      toast.error(error.message || 'Sipariş oluşturulamadı!')
+    },
+  })
+}
+
+// ==========================================
+// YENİ SİPARİŞ OLUŞTUR (Staff)
 // ==========================================
 export function useCreateOrder() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ordersApi.create,
+    mutationFn: ordersApi.createPublic,
     
     onSuccess: (data) => {
-      // Tüm sipariş listelerini geçersiz kıl
       queryClient.invalidateQueries({ queryKey: orderKeys.all })
-      
-      // Masanın durumunu "occupied" yap
-      queryClient.setQueryData(tableKeys.lists(), (old) =>
-        old?.map((table) =>
-          table.id === data.tableId ? { ...table, status: 'occupied' } : table
+
+      if (data.tableId) {
+        queryClient.setQueryData(tableKeys.lists(), (old) =>
+          old?.map((table) =>
+            table.id === data.tableId ? { ...table, status: 'occupied' } : table,
+          ),
         )
-      )
-      
+      }
+
       toast.success('Sipariş oluşturuldu! 🎉')
     },
-    
-    onError: () => {
-      toast.error('Sipariş oluşturulamadı!')
+
+    onError: (error) => {
+      toast.error(error.message || 'Sipariş oluşturulamadı!')
     },
   })
 }

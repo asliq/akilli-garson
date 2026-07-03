@@ -18,8 +18,8 @@ import {
   Star,
   Info
 } from 'lucide-react'
-import { useMenuWithCategories } from '../../hooks/useMenu'
-import { useCreateOrder } from '../../hooks/useOrders'
+import { usePublicMenu } from '../../hooks/usePublicMenu'
+import { useCreatePublicOrder } from '../../hooks/useOrders'
 import { useCreateServiceCall } from '../../hooks/useServiceCalls'
 import { useTranslation } from '../../hooks/useTranslation'
 import toast from 'react-hot-toast'
@@ -45,8 +45,8 @@ export default function CustomerMenu() {
   const [orderNotes, setOrderNotes] = useState('')
   const [detailItem, setDetailItem] = useState(null)   // item detail modal
 
-  const { categories, menuItems, isLoading } = useMenuWithCategories()
-  const createOrder = useCreateOrder()
+  const { data: publicMenu, isLoading } = usePublicMenu(customerTable?.tableToken)
+  const createOrder = useCreatePublicOrder()
   const createServiceCall = useCreateServiceCall()
   const { t } = useTranslation()
 
@@ -57,13 +57,21 @@ export default function CustomerMenu() {
     } catch { return [] }
   }, [cart]) // cart değişince yeniden oku
 
+  const categories = publicMenu?.categories || []
+  const menuItems = publicMenu?.menuItems || []
+
   useEffect(() => {
     const tableData = localStorage.getItem('customerTable')
     if (!tableData) {
       navigate('/customer')
       return
     }
-    setCustomerTable(JSON.parse(tableData))
+    const parsed = JSON.parse(tableData)
+    if (!parsed.tableToken) {
+      navigate('/customer')
+      return
+    }
+    setCustomerTable(parsed)
   }, [navigate])
 
   const filteredMenu = useMemo(() => {
@@ -129,38 +137,31 @@ export default function CustomerMenu() {
   }
 
   const handleOrder = () => {
-    if (cart.length === 0 || !customerTable) return
+    if (cart.length === 0 || !customerTable?.tableToken) return
 
-    const orderData = {
-      tableId: customerTable.tableId,
-      items: cart.map(item => ({
-        menuItemId: item.id,
-        quantity: item.quantity,
-        price: item.price,
-        notes: item.notes
-      })),
-      total: totalWithService,
-      notes: orderNotes,
-      paymentMethod: showPayment ? paymentMethod : null,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    }
-
-    createOrder.mutate(orderData, {
-      onSuccess: () => {
-        // Son siparişleri kaydet
-        const recent = cart.map(i => ({ id: i.id, name: i.name, price: i.price }))
-        localStorage.setItem('customerRecentItems', JSON.stringify(recent.slice(0, 5)))
-        setCart([])
-        setShowCart(false)
-        setShowPayment(false)
-        toast.success(t('customer.orderPlaced'))
-        navigate('/customer/orders')
+    createOrder.mutate(
+      {
+        tableToken: customerTable.tableToken,
+        lines: cart.map((item) => ({
+          menuItemId: item.id,
+          quantity: item.quantity,
+        })),
       },
-      onError: () => {
-        toast.error(t('errors.network'))
-      }
-    })
+      {
+        onSuccess: () => {
+          const recent = cart.map((i) => ({ id: i.id, name: i.name, price: i.price }))
+          localStorage.setItem('customerRecentItems', JSON.stringify(recent.slice(0, 5)))
+          setCart([])
+          setShowCart(false)
+          setShowPayment(false)
+          toast.success(t('customer.orderPlaced'))
+          navigate('/customer/orders')
+        },
+        onError: () => {
+          toast.error(t('errors.network'))
+        },
+      },
+    )
   }
 
   if (isLoading) {
@@ -175,7 +176,7 @@ export default function CustomerMenu() {
           <ArrowLeft size={20} />
         </button>
         <div className={styles.tableInfo}>
-          <span>Masa {customerTable?.tableNumber || '-'}</span>
+          <span>{publicMenu?.tableName || `Masa ${customerTable?.tableNumber || '-'}`}</span>
         </div>
         <button className={styles.cartBtn} onClick={() => setShowCart(true)}>
           <ShoppingCart size={20} />
