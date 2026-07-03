@@ -14,7 +14,7 @@
 [![TypeScript](https://img.shields.io/badge/Backend-TypeScript-3178C6?logo=typescript&logoColor=white)](./api/)
 [![Status](https://img.shields.io/badge/status-MVP%20%2F%20Demo-yellow.svg)](#current-limitations)
 
-[Overview](#project-overview) · [Mimari](#architecture) · [Kurulum](#installation) · [API Docs](#api-documentation) · [Deep Dive](./docs/MASTER-PROJECT-REPORT.md)
+[Overview](#project-overview) · [Metrics](#project-metrics) · [Mimari](#architecture) · [Kurulum](#installation) · [Deep Dive](./docs/MASTER-PROJECT-REPORT.md)
 
 ### Highlights
 
@@ -25,11 +25,29 @@
 | ✔ | DDD · Clean Architecture · Modular Monolith |
 | ✔ | Domain Events → WebSocket realtime |
 | ✔ | Multi-tenant ready schema (`restaurantId`) |
-| ✔ | QR Ordering · Kitchen Display · Swagger (16 REST routes) |
-| ✔ | Manual CQRS — 15 use cases, 13 domain events |
+| ✔ | QR Ordering · Kitchen Display · Swagger API docs |
+| ✔ | Manual CQRS · domain events · repository ports |
 | ✔ | Integration test infrastructure (menu module) |
 
 </div>
+
+---
+
+## Project Metrics
+
+| Area | Count |
+|------|------:|
+| **Backend** (`api/src`) | 178 TypeScript files |
+| **Menu module** (DDD reference) | 93 files |
+| **Frontend pages** | 16 (`src/pages`) |
+| **Frontend hooks** | 19 (`src/hooks`) |
+| **Feature modules** | 5 (menu, order, public, health, realtime) |
+| **Use cases** | 15 |
+| **Domain events** | 13 |
+| **REST endpoints** | 16 |
+| **Prisma models** | 8 |
+| **Database migrations** | 3 |
+| **Integration tests** (menu) | 10 |
 
 ---
 
@@ -86,7 +104,7 @@ A **full-stack engineering portfolio** structured around a restaurant operations
 
 | Area | What was built |
 |------|----------------|
-| **Menu bounded context** | Full 4-layer DDD — reference implementation (~93 files) |
+| **Menu bounded context** | Full 4-layer DDD — reference implementation |
 | **Order bounded context** | Create (public QR) + status machine + snapshot lines |
 | **Realtime** | `OrderRealtimeHandler` — domain event → WebSocket rooms |
 | **Multi-tenant schema** | `Restaurant` root, `restaurantId` on all business tables |
@@ -96,6 +114,34 @@ A **full-stack engineering portfolio** structured around a restaurant operations
 ### Domain context (why restaurant?)
 
 Restaurant dine-in flow forces real design questions: How do you snapshot menu prices on an order? How does kitchen see state without a separate `kitchenOrders` table? How does a QR token resolve to a tenant? These are the problems the codebase actually solves today — not a generic todo app.
+
+---
+
+## Architecture Evolution
+
+How the codebase reached its current shape (solo development, approximate phases):
+
+```mermaid
+flowchart TD
+    A[React MVP<br/>16-page SPA] --> B[json-server mock API<br/>frontend-first prototype]
+    B --> C[NestJS bootstrap<br/>Modular monolith]
+    C --> D[PostgreSQL + Prisma<br/>8 models, migrations]
+    D --> E[DDD refactor<br/>Menu bounded context]
+    E --> F[Order + Public API<br/>QR end-to-end flow]
+    F --> G[WebSocket realtime<br/>Domain events → rooms]
+    G --> H[Current MVP<br/>API_ENABLED migration, docs, integration tests]
+```
+
+| Phase | What changed |
+|-------|----------------|
+| React MVP | Staff + customer UI, TanStack Query, mock REST |
+| json-server | Rapid UI iteration; business rules leaked into hooks |
+| NestJS | Feature modules, DTO validation, Swagger |
+| PostgreSQL | Tenant schema, order snapshots, optimistic locking |
+| DDD refactor | Menu as reference BC — entities, VOs, use cases, repos |
+| Order + Public | Single `Order` aggregate; `tableToken` entry point |
+| WebSocket | `OrderRealtimeHandler` decoupled from HTTP use cases |
+| Current MVP | Honest frontend flags; 10 menu integration tests |
 
 ---
 
@@ -127,63 +173,54 @@ Restaurant dine-in flow forces real design questions: How do you snapshot menu p
 
 ## Screenshots
 
-> Ekran görüntüleri eklenecek. Yer tutucu alanlar aşağıdadır.
+Capture with `npm run screenshots` (API + frontend running). Save to `docs/screenshots/`.
 
-### Staff Dashboard
+| Screen | Scenario to capture |
+|--------|---------------------|
+| **Dashboard** | Staff login → today stats from live orders (revenue, active count) |
+| **Menu** | Category filter + item list with price edit state |
+| **Orders** | Active orders list with status badges and table ID |
+| **Kitchen** | Kitchen display with at least one `preparing` order visible |
+| **QR Ordering** | `/customer?token=qr-masa-1` login screen before menu load |
+| **Customer Menu** | Public menu with cart badge and category navigation |
+| **Swagger** | `http://localhost:3001/docs` — menu + order endpoint groups expanded |
 
-<!-- ![Staff Dashboard](./docs/screenshots/dashboard.png) -->
-```
-[ Screenshot placeholder — Staff Dashboard ]
-```
-
-### Customer Menu
-
-<!-- ![Customer Menu](./docs/screenshots/customer-menu.png) -->
-```
-[ Screenshot placeholder — Customer QR Menu ]
-```
-
-### Kitchen Display
-
-<!-- ![Kitchen Display](./docs/screenshots/kitchen.png) -->
-```
-[ Screenshot placeholder — Kitchen Display System ]
-```
-
-### Order Management
-
-<!-- ![Order Management](./docs/screenshots/orders.png) -->
-```
-[ Screenshot placeholder — Order Management ]
-```
-
-### QR Ordering
-
-<!-- ![QR Ordering](./docs/screenshots/customer-login.png) -->
-```
-[ Screenshot placeholder — QR Ordering Flow ]
-```
-
-> Mevcut görüntüler için: `npm run screenshots` (API + frontend çalışırken)
+Existing assets (if present): `docs/screenshots/*.png`
 
 ---
 
 ## Demo
 
-### GIF
+### Demo Scenario
 
-<!-- ![Demo GIF](./docs/demo/demo.gif) -->
-```
-[ Demo GIF placeholder — QR → Sipariş → Mutfak → Tamamlandı ]
+~60 second walkthrough for reviewers:
+
+```mermaid
+flowchart LR
+    A[QR token<br/>qr-masa-1] --> B[Customer Menu<br/>add items]
+    B --> C[Submit Order<br/>POST /public/orders]
+    C --> D[Kitchen Screen<br/>new order appears]
+    D --> E[Staff updates status<br/>preparing → ready]
+    E --> F[Orders screen<br/>status synced]
+    F --> G[Mark completed<br/>PATCH status]
 ```
 
-### Canlı Demo
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Open `/customer?token=qr-masa-1` | Menu loads from NestJS public API |
+| 2 | Add items → place order | Redirect to customer orders |
+| 3 | Open `/kitchen` (staff login) | Order visible in kitchen list |
+| 4 | Update status on `/orders` | WebSocket / refetch updates kitchen |
+| 5 | Set status `completed` | Order leaves active filters |
 
-```
-[ Live demo placeholder — https://your-demo-url.example.com ]
-```
+### GIF / Live demo
 
-### Lokal demo akışı
+<!-- ![Demo](./docs/demo/demo.gif) -->
+`docs/demo/demo.gif` — record the scenario above (not yet committed)
+
+Live URL: _not deployed_
+
+### Local URLs
 
 | Adım | URL / Aksiyon |
 |------|----------------|
@@ -390,7 +427,7 @@ akilli-garson/
 
 ## Backend Architecture
 
-Modular monolith — **Menu** module is the reference DDD implementation. See [Engineering Decisions](#engineering-decisions) for rationale.
+Modular monolith — **Menu** module is the reference DDD implementation. See [Engineering Decisions](#engineering-decisions).
 
 ```
 presentation/   → Controllers, DTOs, Swagger
@@ -399,15 +436,7 @@ domain/         → Entities, Value Objects, Events, Invariants
 infrastructure/ → Prisma repositories, mappers, unit-of-work
 ```
 
-| Metric | Count |
-|--------|------:|
-| Bounded contexts (implemented) | 3 (menu, order, public) |
-| Use cases | 15 |
-| Domain events | 13 |
-| REST routes | 16 |
-| Integration tests (menu) | 10 |
-
-**Multi-tenant:** `Restaurant` root → `restaurantId` on all business tables. Staff API uses `X-Restaurant-Id` (JWT planned). Public API resolves tenant via `tableToken`.
+**Multi-tenant:** `Restaurant` root → `restaurantId` on all business tables. Staff API uses `X-Restaurant-Id` (JWT planned). Public API resolves tenant via `tableToken`. Counts: [Repository Statistics](#repository-statistics).
 
 ---
 
@@ -443,6 +472,27 @@ ErrorBoundary → QueryClientProvider → BrowserRouter
 |------|----------------|
 | Public | `/customer`, `/customer/menu`, `/customer/orders`, `/login` |
 | Staff (AuthGuard) | `/`, `/orders`, `/kitchen`, `/menu`, `/tables`, … |
+
+---
+
+## Repository Statistics
+
+Counts from the current codebase (`api/src`, `src/`).
+
+| Item | Count |
+|------|------:|
+| Feature modules | 5 |
+| Use cases | 15 |
+| Domain entities | 6 |
+| Value objects | 7 |
+| Repository ports | 5 |
+| Prisma repository implementations | 6 |
+| Controllers | 6 |
+| DTOs | 16 |
+| Database migrations | 3 |
+| React pages | 16 |
+| React hooks | 19 |
+| REST endpoints | 16 |
 
 ---
 
@@ -606,28 +656,16 @@ Deliberately documented — this is an MVP / demo, not production POS software.
 
 ## Project Timeline
 
-Approximate phases — solo development:
+Week-level view of [Architecture Evolution](#architecture-evolution):
 
-```mermaid
-flowchart LR
-    W1[Week 1–2<br/>Frontend MVP<br/>json-server prototype]
-    W2[Week 3–4<br/>Backend migration<br/>NestJS + PostgreSQL]
-    W3[Week 5–6<br/>DDD refactor<br/>Menu bounded context]
-    W4[Week 7<br/>Order + Public API<br/>QR flow end-to-end]
-    W5[Week 8<br/>Realtime<br/>WebSocket + domain events]
-    W6[Week 9+<br/>Stabilization<br/>API_ENABLED, docs, integration tests]
-
-    W1 --> W2 --> W3 --> W4 --> W5 --> W6
-```
-
-| Phase | Deliverable |
-|-------|-------------|
-| **Frontend MVP** | React SPA — 16 pages, TanStack Query, mock REST |
-| **Backend migration** | NestJS bootstrap, Prisma schema, Docker Compose |
-| **DDD refactor** | Menu module — entities, VOs, use cases, repositories |
-| **Order + Public** | `Order` aggregate, `tableToken` flow, adapters |
-| **Realtime** | `RealtimeGateway`, room model, `OrderRealtimeHandler` |
-| **Stabilization** | Frontend NestJS wiring, honest feature flags, docs |
+| Week | Focus |
+|------|--------|
+| 1–2 | Frontend MVP + json-server |
+| 3–4 | NestJS + PostgreSQL + Prisma |
+| 5–6 | Menu DDD refactor |
+| 7 | Order + Public QR API |
+| 8 | WebSocket + domain events |
+| 9+ | Frontend migration, `API_ENABLED`, integration tests, docs |
 
 ---
 
@@ -906,13 +944,9 @@ Kitchen and staff screens need sub-second updates. Polling 5s intervals felt wro
 
 ## Author
 
-**[Your Name]** — Full-Stack Engineer
+**[Your Name]**
 
-Personal engineering project — designed, implemented, and documented solo.
-
-I work across the stack with a backend lean: typed APIs, clear domain boundaries, and data models that survive beyond MVP. This repository is my answer to *"show me how you think about systems"* — not a landing page for a startup.
-
-Previously focused on shipping product UIs; this project was where I deliberately slowed down to implement DDD, event-driven realtime, and multi-tenant schema design on a real domain.
+Kişisel mühendislik çalışması — restoran operasyonları üzerinde backend mimarisi (DDD, event-driven realtime, multi-tenant schema) pratiği yapmak için geliştirildi. Tasarım, implementasyon ve dokümantasyon tek kişi tarafından yapıldı.
 
 | | |
 |---|---|
@@ -924,11 +958,7 @@ Previously focused on shipping product UIs; this project was where I deliberatel
 
 ## Why This Project Matters
 
-This project was **not** built to clone a commercial POS product.
-
-It was built to experience the architectural problems that appear when software grows beyond CRUD: tenant boundaries, aggregate consistency, snapshot immutability, optimistic concurrency, and pushing domain changes to clients in real time — using restaurant operations as the vehicle.
-
-If you are reviewing this as a hiring manager: the backend structure, honest scope documentation, and migration story are what I want to discuss in an interview. The missing pieces (auth, payments, CI) are a backlog I can articulate — not gaps I will hide.
+Not a commercial POS clone. A deliberate exercise in problems that appear past CRUD: tenant boundaries, aggregate consistency, immutable order snapshots, optimistic concurrency, and realtime propagation — on a domain with enough rules to matter.
 
 ---
 
@@ -948,4 +978,50 @@ If you are reviewing this as a hiring manager: the backend structure, honest sco
 
 ---
 
-> Personal engineering and portfolio work. Built to apply the architectural patterns used in modern restaurant management systems — on a real domain, with honest scope.
+## Reviewer Notes
+
+Suggested reading order for a technical review:
+
+1. **`api/src/modules/menu/`** — full DDD reference (entities, VOs, use cases, Prisma repos, 10 integration tests)
+2. **`api/src/modules/order/`** — aggregate, snapshot lines, status machine, public create flow
+3. **`api/src/modules/realtime/`** — `OrderRealtimeHandler`, room model, WS gateway
+4. **`api/src/modules/public/`** — thin read model; `tableToken` → tenant resolution
+5. **`src/api/adapters.js`** — NestJS ↔ UI mapping (frontend migration layer)
+
+Start with `CreateCategoryUseCase` or `create-category.integration.spec.ts` if time is limited.
+
+---
+
+## Known Future Work
+
+Architectural items planned — not a repeat of [Roadmap](#roadmap):
+
+| Item | Why it matters |
+|------|----------------|
+| **JWT + backend RBAC** | Replace `X-Restaurant-Id` header and demo PIN |
+| **Payments bounded context** | Separate aggregate; do not overload `Order` |
+| **CI/CD** | Build, migrate, integration tests on every push |
+| **WebSocket Redis adapter** | Horizontal scale for WS rooms |
+| **Transactional outbox** | Reliable domain event delivery to external systems |
+| **Production Docker** | API container + compose for staging |
+
+---
+
+## Questions a CTO Might Ask
+
+After reading this README, reasonable follow-up questions:
+
+1. Why modular monolith instead of microservices at this stage?
+2. How is tenant isolation enforced today, and what breaks if `X-Restaurant-Id` is spoofed?
+3. Why no separate `KitchenTicket` aggregate — what did you trade off?
+4. How would you add JWT without rewriting the use case layer?
+5. What is your strategy for order line item updates (add/remove) on the existing aggregate?
+6. Why manual CQRS instead of `@nestjs/cqrs`?
+7. How do you test multi-tenant isolation — what cases do the 10 integration tests cover?
+8. What is the plan for the json-server legacy UI modules still in the sidebar?
+9. How would you deploy this with zero-downtime migrations?
+10. If this went to 100 restaurants, what fails first — DB, WS, or application layer?
+
+---
+
+> Personal engineering and portfolio work. Built to apply modern restaurant-system architecture patterns on a real domain, with documented scope limits.
