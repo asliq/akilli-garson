@@ -126,6 +126,7 @@ export async function resetIntegrationDatabase(prisma: PrismaService): Promise<v
       "menu_category_placements",
       "menu_items",
       "menu_categories",
+      "tables",
       "restaurants"
     RESTART IDENTITY CASCADE
   `);
