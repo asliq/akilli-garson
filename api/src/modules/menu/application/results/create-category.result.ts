@@ -1,7 +1,7 @@
 import { MenuCategory } from '../../domain/entities/menu-category.entity';
 import { MenuCategoryStatus } from '../../domain/enums/menu-category-status.enum';
 
-export class CreateCategoryOutputDto {
+export class CreateCategoryResult {
   id!: string;
   restaurantId!: string;
   branchId!: string | null;
@@ -14,9 +14,8 @@ export class CreateCategoryOutputDto {
   status!: MenuCategoryStatus;
   version!: number;
   createdAt!: Date;
-  updatedAt!: Date;
 
-  static fromDomain(category: MenuCategory): CreateCategoryOutputDto {
+  static fromDomain(category: MenuCategory): CreateCategoryResult {
     return {
       id: category.id,
       restaurantId: category.restaurantId,
@@ -30,7 +29,6 @@ export class CreateCategoryOutputDto {
       status: category.status,
       version: category.version,
       createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
     };
   }
 }

@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { DomainException } from '@/shared/exceptions/domain.exception';
 import { MenuCategoryStatus } from '../enums/menu-category-status.enum';
 import { CategoryColor } from '../value-objects/category-color.vo';
 import { CategorySlug } from '../value-objects/category-slug.vo';
@@ -64,6 +65,18 @@ export class MenuCategory {
 
   static reconstitute(props: MenuCategoryProps): MenuCategory {
     return new MenuCategory(props);
+  }
+
+  archive(actorId?: string | null): void {
+    if (this.props.status === MenuCategoryStatus.ARCHIVED) {
+      throw new DomainException('Category is already archived', 'CATEGORY_ALREADY_ARCHIVED', 400);
+    }
+
+    this.props.status = MenuCategoryStatus.ARCHIVED;
+    this.props.deletedAt = new Date();
+    this.props.updatedAt = new Date();
+    this.props.updatedBy = actorId ?? this.props.updatedBy;
+    this.props.version += 1;
   }
 
   get id(): string {
