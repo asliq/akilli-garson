@@ -25,6 +25,7 @@ model Restaurant {
   menuCategoryPlacements MenuCategoryPlacement[]
   menuPrices             MenuPrice[]
   tables                 Table[]
+  orders                 Order[]
 
   @@map("restaurants")
 }
@@ -48,6 +49,8 @@ model Table {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
+
+  orders Order[]
 
   @@index([restaurantId], map: "idx_tables_restaurant")
   @@index([restaurantId, deletedAt], map: "idx_tables_restaurant_not_deleted")
@@ -263,4 +266,85 @@ model MenuPrice {
   @@index([restaurantId, deletedAt], map: "idx_menu_prices_restaurant_not_deleted")
   @@index([validFrom], map: "idx_menu_prices_valid_from")
   @@map("menu_prices")
+}
+
+// =============================================================================
+// Orders
+// =============================================================================
+
+enum OrderStatus {
+  DRAFT                @map("draft")
+  OPEN                 @map("open")
+  IN_KITCHEN           @map("in_kitchen")
+  PARTIALLY_SERVED     @map("partially_served")
+  SERVED               @map("served")
+  BILL_REQUESTED       @map("bill_requested")
+  PAYMENT_IN_PROGRESS  @map("payment_in_progress")
+  CLOSED               @map("closed")
+  CANCELLED            @map("cancelled")
+  VOIDED               @map("voided")
+
+  @@map("order_status")
+}
+
+/// Sipariş aggregate root — MenuItem FK yok; snapshot ile çalışır
+model Order {
+  id String @id @default(uuid()) @db.Uuid
+
+  restaurantId String     @map("restaurant_id") @db.Uuid
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
+
+  tableId String @map("table_id") @db.Uuid
+  table   Table  @relation(fields: [tableId], references: [id], onDelete: Restrict)
+
+  status OrderStatus @default(OPEN)
+
+  currencyCode  String @default("TRY") @map("currency_code") @db.Char(3)
+  subtotalMinor BigInt @map("subtotal_minor")
+  totalMinor    BigInt @map("total_minor")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  version   Int       @default(1)
+
+  lines OrderLine[]
+
+  @@index([restaurantId, status], map: "idx_orders_restaurant_status")
+  @@index([restaurantId, deletedAt], map: "idx_orders_restaurant_not_deleted")
+  @@index([tableId], map: "idx_orders_table")
+  @@index([restaurantId, createdAt], map: "idx_orders_restaurant_created")
+  @@map("orders")
+}
+
+/// Sipariş kalemi — MenuItem snapshot; canlı menü FK'si yok
+model OrderLine {
+  id String @id @default(uuid()) @db.Uuid
+
+  orderId String @map("order_id") @db.Uuid
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  restaurantId String @map("restaurant_id") @db.Uuid
+
+  lineNumber     Int    @map("line_number")
+  quantity       Int
+  unitPriceMinor BigInt @map("unit_price_minor")
+  lineTotalMinor BigInt @map("line_total_minor")
+  currencyCode   String @map("currency_code") @db.Char(3)
+
+  menuItemId         String       @map("menu_item_id") @db.Uuid
+  sku                String       @db.VarChar(50)
+  name               String       @db.VarChar(200)
+  slug               String?      @db.VarChar(200)
+  itemType           MenuItemType @map("item_type")
+  taxCategoryId      String?      @map("tax_category_id") @db.Uuid
+  kitchenStationId   String?      @map("kitchen_station_id") @db.Uuid
+  snapshotCapturedAt DateTime     @map("snapshot_captured_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([orderId, lineNumber], map: "uq_order_lines_order_line_number")
+  @@index([orderId], map: "idx_order_lines_order")
+  @@index([restaurantId], map: "idx_order_lines_restaurant")
+  @@map("order_lines")
 }

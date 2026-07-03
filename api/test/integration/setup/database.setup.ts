@@ -122,6 +122,8 @@ export async function stopIntegrationDatabase(): Promise<void> {
 export async function resetIntegrationDatabase(prisma: PrismaService): Promise<void> {
   await prisma.$executeRawUnsafe(`
     TRUNCATE TABLE
+      "order_lines",
+      "orders",
       "menu_prices",
       "menu_category_placements",
       "menu_items",

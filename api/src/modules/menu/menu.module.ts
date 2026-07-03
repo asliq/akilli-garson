@@ -60,6 +60,7 @@ import { MenuItemController } from './presentation/controllers/menu-item.control
     GetCategoryUseCase,
     ListMenuItemsUseCase,
     GetMenuItemUseCase,
+    MENU_ITEM_REPOSITORY,
   ],
 })
 export class MenuModule {}
