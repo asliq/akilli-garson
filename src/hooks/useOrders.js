@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ordersApi, tablesApi } from '../api/services'
+import { ordersApi, tablesApi, API_ENABLED } from '../api/services'
 import { tableKeys } from './useTables'
 import toast from 'react-hot-toast'
 
@@ -97,7 +97,7 @@ export function useCreateOrder() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: orderKeys.all })
 
-      if (data.tableId) {
+      if (API_ENABLED.tables && data.tableId) {
         queryClient.setQueryData(tableKeys.lists(), (old) =>
           old?.map((table) =>
             table.id === data.tableId ? { ...table, status: 'occupied' } : table,
@@ -153,8 +153,7 @@ export function useUpdateOrderStatus() {
       }
       toast.success(`Sipariş: ${statusText[data.status]}`)
       
-      // Eğer sipariş tamamlandı veya iptal edildiyse masayı boşalt
-      if (data.status === 'completed' || data.status === 'paid' || data.status === 'cancelled') {
+      if (API_ENABLED.tables && (data.status === 'completed' || data.status === 'paid' || data.status === 'cancelled')) {
         queryClient.setQueryData(tableKeys.lists(), (old) =>
           old?.map((table) =>
             table.id === data.tableId ? { ...table, status: 'available' } : table
@@ -183,8 +182,8 @@ export function useAddOrderItem() {
       toast.success('Ürün siparişe eklendi!')
     },
     
-    onError: () => {
-      toast.error('Ürün eklenemedi!')
+    onError: (err) => {
+      toast.error(err?.message || 'Ürün eklenemedi!')
     },
   })
 }
@@ -203,8 +202,8 @@ export function useRemoveOrderItem() {
       toast.success('Ürün siparişten çıkarıldı')
     },
     
-    onError: () => {
-      toast.error('Ürün çıkarılamadı!')
+    onError: (err) => {
+      toast.error(err?.message || 'Ürün çıkarılamadı!')
     },
   })
 }
@@ -232,7 +231,7 @@ export function useDeleteOrder() {
     
     onError: (err, id, context) => {
       queryClient.setQueryData(orderKeys.lists(), context?.previousOrders)
-      toast.error('Sipariş silinemedi!')
+      toast.error(err?.message || 'Sipariş silinemedi!')
     },
     
     onSuccess: () => {
@@ -265,9 +264,9 @@ export function useUpdateOrder() {
     mutationFn: ordersApi.update,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: orderKeys.all })
-      queryClient.invalidateQueries({ queryKey: tableKeys.all })
+      if (API_ENABLED.tables) queryClient.invalidateQueries({ queryKey: tableKeys.all })
     },
-    onError: () => toast.error('Sipariş güncellenemedi'),
+    onError: (err) => toast.error(err?.message || 'Sipariş güncellenemedi'),
   })
 }
 
@@ -278,6 +277,7 @@ export function useTransferOrder() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ orderId, fromTableId, toTableId }) => {
+      if (!API_ENABLED.tables) throw new Error('Masa transferi henüz kullanılamıyor')
       const order = await ordersApi.update({ id: orderId, tableId: toTableId })
       await tablesApi.updateStatus({ id: fromTableId, status: 'available' })
       await tablesApi.updateStatus({ id: toTableId, status: 'occupied' })
@@ -285,10 +285,10 @@ export function useTransferOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: orderKeys.all })
-      queryClient.invalidateQueries({ queryKey: tableKeys.all })
+      if (API_ENABLED.tables) queryClient.invalidateQueries({ queryKey: tableKeys.all })
       toast.success('Sipariş transfer edildi')
     },
-    onError: () => toast.error('Transfer başarısız'),
+    onError: (err) => toast.error(err?.message || 'Transfer başarısız'),
   })
 }
 
@@ -299,6 +299,7 @@ export function useMergeOrders() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ sourceOrderId, targetOrderId, targetTableId, sourceTableId }) => {
+      if (!API_ENABLED.tables) throw new Error('Masa birleştirme henüz kullanılamıyor')
       const source = await ordersApi.getById(sourceOrderId)
       const target = await ordersApi.getById(targetOrderId)
 
@@ -319,10 +320,10 @@ export function useMergeOrders() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: orderKeys.all })
-      queryClient.invalidateQueries({ queryKey: tableKeys.all })
+      if (API_ENABLED.tables) queryClient.invalidateQueries({ queryKey: tableKeys.all })
       toast.success('Masalar birleştirildi')
     },
-    onError: () => toast.error('Birleştirme başarısız'),
+    onError: (err) => toast.error(err?.message || 'Birleştirme başarısız'),
   })
 }
 

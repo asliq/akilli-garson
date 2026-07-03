@@ -305,7 +305,7 @@ export default function Orders() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {['served', 'ready', 'preparing'].includes(order.status) && (
+                    {API_ENABLED.tables && ['served', 'ready', 'preparing'].includes(order.status) && (
                       <button
                         className={styles.printBtn}
                         onClick={() => {

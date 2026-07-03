@@ -69,7 +69,7 @@ export const menuApi = {
   },
 
   updateAvailability: async ({ id, isAvailable }) => {
-    throw new Error('Ürün stok durumu API üzerinden henüz desteklenmiyor')
+    return Promise.reject(new Error('Ürün stok durumu API üzerinden henüz desteklenmiyor'))
   },
 
   updatePrice: async ({ id, price }) => {
@@ -107,11 +107,11 @@ export const menuApi = {
   },
 
   delete: async () => {
-    throw new Error('Ürün silme API üzerinden henüz desteklenmiyor')
+    return Promise.reject(new Error('Ürün silme API üzerinden henüz desteklenmiyor'))
   },
 
   update: async () => {
-    throw new Error('Ürün güncelleme API üzerinden henüz desteklenmiyor')
+    return Promise.reject(new Error('Ürün güncelleme API üzerinden henüz desteklenmiyor'))
   },
 }
 

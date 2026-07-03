@@ -92,7 +92,7 @@ export function useUpdateMenuAvailability() {
     
     onError: (err, variables, context) => {
       queryClient.setQueryData(menuKeys.lists(), context?.previousItems)
-      toast.error('Stok durumu güncellenemedi!')
+      toast.error(err?.message || 'Stok durumu güncellenemedi!')
     },
     
     onSuccess: (data) => {
@@ -169,7 +169,7 @@ export function useDeleteMenuItem() {
 
     onError: (err, id, context) => {
       queryClient.setQueryData(menuKeys.lists(), context?.previousItems)
-      toast.error('Ürün silinemedi!')
+      toast.error(err?.message || 'Ürün silinemedi!')
     },
 
     onSuccess: () => {

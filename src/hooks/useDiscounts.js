@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { discountsApi } from '../api/services'
+import { discountsApi, API_ENABLED } from '../api/services'
 import toast from 'react-hot-toast'
 
 // Get all discounts
@@ -7,7 +7,9 @@ export function useDiscounts() {
   return useQuery({
     queryKey: ['discounts'],
     queryFn: discountsApi.getAll,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: API_ENABLED.discounts,
+    staleTime: 1000 * 60 * 5,
+    retry: false,
   })
 }
 
@@ -16,7 +18,9 @@ export function useActiveDiscounts() {
   return useQuery({
     queryKey: ['discounts', 'active'],
     queryFn: discountsApi.getActive,
+    enabled: API_ENABLED.discounts,
     staleTime: 1000 * 60 * 5,
+    retry: false,
   })
 }
 
@@ -25,8 +29,9 @@ export function useDiscountByCode(code) {
   return useQuery({
     queryKey: ['discounts', 'code', code],
     queryFn: () => discountsApi.getByCode(code),
-    enabled: !!code,
+    enabled: API_ENABLED.discounts && !!code,
     staleTime: 1000 * 60 * 5,
+    retry: false,
   })
 }
 

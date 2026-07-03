@@ -35,13 +35,6 @@ export default function Inventory() {
       </div>
     )
   }
-
-  // Debug logs
-  console.log('Inventory Component Rendered')
-  console.log('Loading:', isLoading)
-  console.log('Error:', error)
-  console.log('Inventory Data:', inventory)
-
   const getStockStatus = (item) => {
     if (item.quantity === 0) return 'out'
     if (item.quantity <= item.minStock) return 'low'
