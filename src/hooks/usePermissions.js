@@ -1,27 +1,32 @@
 import { useMemo } from 'react'
 import { useAppStore } from '../store/useAppStore'
+import { NAV_SECTIONS } from '../config/navigation'
 
-const ROLE_ACCESS = {
-  admin: ['/', '/orders', '/kitchen', '/menu'],
-  manager: ['/', '/orders', '/kitchen', '/menu'],
-  waiter: ['/', '/orders', '/kitchen', '/menu'],
-  kitchen: ['/kitchen'],
-}
-
-const DEFAULT_ROLE = 'waiter'
+const KITCHEN_ONLY = ['/kitchen']
 
 export function usePermissions() {
   const activeWaiter = useAppStore((state) => state.activeWaiter)
-  const role = activeWaiter?.role || DEFAULT_ROLE
+  const role = activeWaiter?.role || 'waiter'
 
-  const allowedPaths = useMemo(() => ROLE_ACCESS[role] || ROLE_ACCESS.waiter, [role])
+  const allPaths = useMemo(
+    () => NAV_SECTIONS.flatMap((s) => s.items.map((i) => i.path)),
+    [],
+  )
 
   const canAccess = (path) => {
-    if (role === 'admin') return true
-    return allowedPaths.some(p => path === p || path.startsWith(p + '/'))
+    if (role === 'kitchen') {
+      return KITCHEN_ONLY.some((p) => path === p || path.startsWith(`${p}/`))
+    }
+    return allPaths.some((p) => path === p || (p !== '/' && path.startsWith(p)))
   }
 
   const defaultPath = role === 'kitchen' ? '/kitchen' : '/'
 
-  return { role, allowedPaths, canAccess, defaultPath, isAdmin: role === 'admin', isKitchen: role === 'kitchen' }
+  return {
+    role,
+    canAccess,
+    defaultPath,
+    isAdmin: role === 'admin' || role === 'manager',
+    isKitchen: role === 'kitchen',
+  }
 }

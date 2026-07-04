@@ -25,7 +25,7 @@ export function useSystemHealth(options = {}) {
   const { isConnected: wsConnected } = useWebSocketContext()
 
   const query = useQuery({
-    queryKey: ['system', 'health'],
+    queryKey: ['system', 'health', wsConnected],
     queryFn: async () => {
       const [live, ready] = await Promise.allSettled([
         fetchHealth('/health/live'),

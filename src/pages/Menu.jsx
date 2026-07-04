@@ -106,7 +106,7 @@ export default function Menu() {
     return (
       <div className={styles.page}>
         <p>Menü yüklenemedi.</p>
-        <p>{error?.message || 'API bağlantı hatası'}</p>
+          <p>Menü yüklenemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.</p>
         <button type="button" onClick={() => refetch()}>Tekrar Dene</button>
       </div>
     )
@@ -148,7 +148,7 @@ export default function Menu() {
 
       {categories.length === 0 && (
         <div className={styles.emptyState}>
-          <p>Henüz kategori yok. Ürün eklemek için önce API üzerinden kategori oluşturulmalı.</p>
+          <p>Menü kategorileri henüz tanımlanmamış. Demo veritabanında kategori oluşturulduğundan emin olun.</p>
         </div>
       )}
 

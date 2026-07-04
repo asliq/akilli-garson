@@ -13,7 +13,7 @@ const voiceCommands = {
   'mutfak': { action: 'navigate', path: '/kitchen' },
   'menü': { action: 'navigate', path: '/menu' },
   'menu': { action: 'navigate', path: '/menu' },
-  'ayarlar': { action: 'navigate', path: '/settings' },
+  'ayarlar': { action: 'navigate', path: '/system/settings' },
   'yenile': { action: 'refresh' },
   'çıkış': { action: 'logout' }
 }

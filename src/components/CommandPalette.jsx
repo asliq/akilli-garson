@@ -3,44 +3,42 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search,
-  LayoutDashboard,
-  Grid3X3,
-  UtensilsCrossed,
-  ClipboardList,
-  ChefHat,
-  CalendarDays,
-  BarChart3,
   Settings,
   LogOut,
-  Plus,
-  Bell,
   Moon,
-  Sun,
   Volume2,
-  VolumeX,
   RefreshCw,
   Command,
   ArrowRight,
-  FileText,
-  Users,
-  Package,
+  Hash,
 } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 import { useLogout } from '../hooks/useAuth'
-import { isStaffRouteVisible } from '../config/features'
+import { getAllNavCommands } from '../config/navigation'
+import { MODULE_STATUS } from '../config/modules'
 import styles from './CommandPalette.module.css'
 
-const commands = [
-  { id: 'nav-dashboard', label: 'Anasayfa', description: 'Dashboard\'a git', icon: LayoutDashboard, category: 'Navigasyon', action: 'navigate', path: '/', shortcut: 'G D' },
-  { id: 'nav-orders', label: 'Siparişler', description: 'Sipariş listesine git', icon: ClipboardList, category: 'Navigasyon', action: 'navigate', path: '/orders', shortcut: 'G O' },
-  { id: 'nav-kitchen', label: 'Mutfak', description: 'Mutfak ekranına git', icon: ChefHat, category: 'Navigasyon', action: 'navigate', path: '/kitchen', shortcut: 'G K' },
-  { id: 'nav-menu', label: 'Menü Yönetimi', description: 'Menü düzenle', icon: UtensilsCrossed, category: 'Navigasyon', action: 'navigate', path: '/menu', shortcut: 'G M' },
-  { id: 'nav-settings', label: 'Ayarlar', description: 'Sistem ayarları', icon: Settings, category: 'Navigasyon', action: 'navigate', path: '/settings', shortcut: 'G S' },
-  { id: 'action-refresh', label: 'Verileri Yenile', description: 'Tüm verileri güncelle', icon: RefreshCw, category: 'Eylemler', action: 'refresh', shortcut: 'R' },
+const actionCommands = [
+  { id: 'action-refresh', label: 'Verileri Yenile', description: 'Sayfayı yenile', icon: RefreshCw, category: 'Eylemler', action: 'refresh', shortcut: 'R' },
   { id: 'setting-theme', label: 'Tema Değiştir', description: 'Koyu/Açık tema', icon: Moon, category: 'Ayarlar', action: 'toggle-theme' },
   { id: 'setting-sound', label: 'Ses Aç/Kapat', description: 'Bildirim seslerini yönet', icon: Volume2, category: 'Ayarlar', action: 'toggle-sound' },
+  { id: 'nav-settings', label: 'Ayarlar', description: 'Sistem ayarları', icon: Settings, category: 'Navigasyon', action: 'navigate', path: '/system/settings', shortcut: 'G S' },
   { id: 'system-logout', label: 'Çıkış Yap', description: 'Oturumu sonlandır', icon: LogOut, category: 'Sistem', action: 'logout' },
 ]
+
+const navCommands = getAllNavCommands()
+  .filter((item) => item.status === MODULE_STATUS.LIVE)
+  .map((item) => ({
+    id: `nav-${item.path}`,
+    label: item.label,
+    description: `${item.label} sayfasına git`,
+    icon: item.icon,
+    category: 'Navigasyon',
+    action: 'navigate',
+    path: item.path,
+  }))
+
+const commands = [...navCommands, ...actionCommands]
 
 export function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false)
@@ -55,40 +53,29 @@ export function CommandPalette() {
   const setTheme = useAppStore((state) => state.setTheme)
   const logoutMutation = useLogout()
 
-  // Filter commands
-  const visibleCommands = commands.filter(cmd =>
-    cmd.action !== 'navigate' || isStaffRouteVisible(cmd.path)
-  )
-
-  const filteredCommands = visibleCommands.filter(cmd => {
+  const filteredCommands = commands.filter(cmd => {
     const searchStr = `${cmd.label} ${cmd.description} ${cmd.category}`.toLowerCase()
     return searchStr.includes(query.toLowerCase())
   })
 
-  // Group by category
   const groupedCommands = filteredCommands.reduce((acc, cmd) => {
     if (!acc[cmd.category]) acc[cmd.category] = []
     acc[cmd.category].push(cmd)
     return acc
   }, {})
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Cmd/Ctrl + K to open
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
         setIsOpen(prev => !prev)
       }
       
-      // Escape to close
       if (e.key === 'Escape') {
         setIsOpen(false)
       }
       
-      // Quick navigation shortcuts (when palette is closed)
       if (!isOpen && !e.metaKey && !e.ctrlKey) {
-        // G + key for navigation
         if (e.key === 'g') {
           window.__gPressed = true
           setTimeout(() => { window.__gPressed = false }, 500)
@@ -97,13 +84,10 @@ export function CommandPalette() {
         if (window.__gPressed) {
           const shortcuts = {
             'd': '/',
-            't': '/tables',
             'o': '/orders',
             'k': '/kitchen',
             'm': '/menu',
-            'r': '/reservations',
-            'a': '/analytics',
-            's': '/settings',
+            's': '/system/settings',
           }
           
           if (shortcuts[e.key]) {
@@ -119,7 +103,6 @@ export function CommandPalette() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, navigate])
 
-  // Focus input when opened
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus()
@@ -128,7 +111,6 @@ export function CommandPalette() {
     }
   }, [isOpen])
 
-  // Handle arrow keys
   useEffect(() => {
     if (!isOpen) return
     
@@ -158,9 +140,6 @@ export function CommandPalette() {
       case 'navigate':
         navigate(cmd.path)
         break
-      case 'new-order':
-        navigate('/tables')
-        break
       case 'refresh':
         window.location.reload()
         break
@@ -183,7 +162,6 @@ export function CommandPalette() {
 
   return (
     <>
-      {/* Trigger hint */}
       <div className={styles.triggerHint}>
         <Command size={12} />
         <span>K</span>
@@ -207,7 +185,6 @@ export function CommandPalette() {
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
               transition={{ duration: 0.15 }}
             >
-              {/* Search Input */}
               <div className={styles.searchWrapper}>
                 <Search size={18} className={styles.searchIcon} />
                 <input
@@ -226,18 +203,18 @@ export function CommandPalette() {
                 </div>
               </div>
 
-              {/* Commands List */}
               <div className={styles.commandList}>
                 {Object.entries(groupedCommands).map(([category, cmds]) => (
                   <div key={category} className={styles.commandGroup}>
                     <div className={styles.groupLabel}>{category}</div>
-                    {cmds.map((cmd, idx) => {
+                    {cmds.map((cmd) => {
                       const globalIdx = filteredCommands.indexOf(cmd)
                       const isSelected = globalIdx === selectedIndex
                       
                       return (
                         <button
                           key={cmd.id}
+                          type="button"
                           className={`${styles.commandItem} ${isSelected ? styles.selected : ''}`}
                           onClick={() => executeCommand(cmd)}
                           onMouseEnter={() => setSelectedIndex(globalIdx)}
@@ -274,7 +251,6 @@ export function CommandPalette() {
                 )}
               </div>
 
-              {/* Footer */}
               <div className={styles.footer}>
                 <div className={styles.footerHint}>
                   <span className={styles.key}>↑↓</span>
@@ -296,4 +272,3 @@ export function CommandPalette() {
     </>
   )
 }
-

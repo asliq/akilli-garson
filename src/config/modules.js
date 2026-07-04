@@ -10,8 +10,10 @@ export const MODULE_STATUS = {
 
 export const DEMO_EDITION = {
   name: 'Demo Edition',
-  version: '2.1',
+  productName: 'Akıllı Garson',
+  productSubtitle: 'Restaurant Management Platform',
   tagline: 'Restoran Yönetim Platformu',
+  footer: '© Akıllı Garson — Tüm hakları saklıdır',
 }
 
 export const ROADMAP_MODULES = {

@@ -1,22 +1,12 @@
 import { useState, useEffect } from 'react'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  Grid3X3, 
-  UtensilsCrossed, 
-  ClipboardList,
+import { NavLink, useLocation, useNavigate, Link } from 'react-router-dom'
+import {
   Bell,
   Settings,
-  ChefHat,
-  CalendarDays,
-  BarChart3,
-  Package,
   LogOut,
-  User,
   Menu as MenuIcon,
   X as CloseIcon,
-  FileText,
-  Users,
+  ChevronRight,
 } from 'lucide-react'
 import { useActiveOrdersCount } from '../../hooks/useOrders'
 import { useCurrentUser, useLogout } from '../../hooks/useAuth'
@@ -26,24 +16,9 @@ import { LiveClock } from '../LiveClock'
 import { VoiceCommand } from '../VoiceCommand'
 import { PerformanceMonitor } from '../PerformanceMonitor'
 import { usePermissions } from '../../hooks/usePermissions'
-import { isStaffRouteVisible } from '../../config/features'
+import { NAV_SECTIONS, getBreadcrumbs, getPageTitle } from '../../config/navigation'
+import { DEMO_EDITION, MODULE_STATUS } from '../../config/modules'
 import styles from './Layout.module.css'
-
-const mainNavItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Anasayfa' },
-  { path: '/tables', icon: Grid3X3, label: 'Masalar' },
-  { path: '/orders', icon: ClipboardList, label: 'Siparişler', badge: 'orders' },
-  { path: '/kitchen', icon: ChefHat, label: 'Mutfak' },
-]
-
-const secondaryNavItems = [
-  { path: '/menu', icon: UtensilsCrossed, label: 'Menü Yönetimi' },
-  { path: '/reservations', icon: CalendarDays, label: 'Rezervasyonlar', badge: 'reservations' },
-  { path: '/analytics', icon: BarChart3, label: 'Raporlar' },
-  { path: '/daily-report', icon: FileText, label: 'Günlük Rapor' },
-  { path: '/waiters', icon: Users, label: 'Garsonlar' },
-  { path: '/inventory', icon: Package, label: 'Stok Yönetimi' },
-]
 
 export default function Layout({ children }) {
   const location = useLocation()
@@ -51,20 +26,18 @@ export default function Layout({ children }) {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
-  // Rota değişince mobil sidebar'ı kapat
   useEffect(() => {
     setMobileSidebarOpen(false)
   }, [location.pathname])
-  
+
   const activeOrdersCount = useActiveOrdersCount()
   const currentUser = useCurrentUser()
   const logoutMutation = useLogout()
   const { canAccess } = usePermissions()
-
-  const navVisible = (item) => isStaffRouteVisible(item.path) && canAccess(item.path)
-  const filteredMainNav = mainNavItems.filter(navVisible)
-  const filteredSecondaryNav = secondaryNavItems.filter(navVisible)
   const { unreadCount, setShowPanel, showPanel } = useNotifications()
+
+  const breadcrumbs = getBreadcrumbs(location.pathname)
+  const pageTitle = getPageTitle(location.pathname)
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
@@ -79,7 +52,7 @@ export default function Layout({ children }) {
 
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
-      onSuccess: () => navigate('/login')
+      onSuccess: () => navigate('/login'),
     })
   }
 
@@ -88,110 +61,107 @@ export default function Layout({ children }) {
     return 0
   }
 
+  const isItemActive = (path) => {
+    if (path === '/') return location.pathname === '/'
+    return location.pathname === path
+  }
+
+  const filterItem = (item) => canAccess(item.path)
+
   return (
     <div className={styles.layout}>
-      {/* Mobile overlay */}
       {mobileSidebarOpen && (
         <div className={styles.mobileOverlay} onClick={() => setMobileSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <aside className={`${styles.sidebar} ${mobileSidebarOpen ? styles.sidebarOpen : ''}`}>
-        {/* Mobile close button */}
-        <button className={styles.mobileSidebarClose} onClick={() => setMobileSidebarOpen(false)}>
+        <button
+          type="button"
+          className={styles.mobileSidebarClose}
+          onClick={() => setMobileSidebarOpen(false)}
+        >
           <CloseIcon size={20} />
         </button>
-        {/* Logo */}
+
         <div className={styles.logoArea}>
-          <div className={styles.logoIcon}>
-            🍽️
-          </div>
+          <div className={styles.logoIcon}>AG</div>
           <div className={styles.logoText}>
-            <span className={styles.logoTitle}>Akıllı Garson</span>
-            <span className={styles.logoVersion}>POS v2.1</span>
+            <span className={styles.logoTitle}>{DEMO_EDITION.productName}</span>
+            <span className={styles.logoSubtitle}>{DEMO_EDITION.productSubtitle}</span>
+            <span className={styles.logoEdition}>{DEMO_EDITION.name}</span>
           </div>
         </div>
 
-        {/* Status Bar */}
         <div className={styles.statusBar}>
           <div className={`${styles.statusIndicator} ${isOnline ? styles.online : styles.offline}`}>
-            <span>{isOnline ? 'Bağlı' : 'Çevrimdışı'}</span>
+            <span>{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}</span>
           </div>
           <WebSocketStatus />
         </div>
 
-        {/* Navigation */}
         <nav className={styles.nav}>
-          {/* Main Nav */}
-          <div className={styles.navSection}>
-            <span className={styles.navLabel}>İşlemler</span>
-            {filteredMainNav.map((item) => {
-              const badgeCount = item.badge ? getBadgeCount(item.badge) : 0
-              const isActive = location.pathname === item.path
-              
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={`${styles.navItem} ${isActive ? styles.active : ''}`}
-                >
-                  <item.icon size={18} />
-                  <span>{item.label}</span>
-                  {badgeCount > 0 && (
-                    <span className={styles.navBadge}>{badgeCount}</span>
-                  )}
-                </NavLink>
-              )
-            })}
-          </div>
+          {NAV_SECTIONS.map((section) => {
+            const items = section.items.filter(filterItem)
+            if (items.length === 0) return null
 
-          {/* Secondary Nav */}
-          <div className={styles.navSection}>
-            <span className={styles.navLabel}>Yönetim</span>
-            {filteredSecondaryNav.map((item) => {
-              const badgeCount = item.badge ? getBadgeCount(item.badge) : 0
-              const isActive = location.pathname === item.path
-              
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={`${styles.navItem} ${isActive ? styles.active : ''}`}
-                >
-                  <item.icon size={18} />
-                  <span>{item.label}</span>
-                  {badgeCount > 0 && (
-                    <span className={styles.navBadge}>{badgeCount}</span>
-                  )}
-                </NavLink>
-              )
-            })}
-          </div>
+            return (
+              <div key={section.id} className={styles.navSection}>
+                {section.label && (
+                  <span className={styles.navLabel}>{section.label}</span>
+                )}
+                {items.map((item) => {
+                  const badgeCount = item.badge ? getBadgeCount(item.badge) : 0
+                  const isActive = isItemActive(item.path)
+                  const isRoadmap = item.status === MODULE_STATUS.ROADMAP
+
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      className={`${styles.navItem} ${isActive ? styles.active : ''} ${isRoadmap ? styles.roadmap : ''}`}
+                    >
+                      <item.icon size={18} className={styles.navIcon} />
+                      <span className={styles.navText}>{item.label}</span>
+                      {isRoadmap && (
+                        <span className={styles.roadmapBadge} title="Yol haritası modülü">
+                          Plan
+                        </span>
+                      )}
+                      {badgeCount > 0 && (
+                        <span className={styles.navBadge}>{badgeCount}</span>
+                      )}
+                    </NavLink>
+                  )
+                })}
+                <div className={styles.sectionDivider} />
+              </div>
+            )
+          })}
         </nav>
 
-        {/* User Area */}
         <div className={styles.userArea}>
           <div className={styles.userProfile}>
             <div className={styles.userAvatar}>
               {currentUser?.avatar || '👤'}
             </div>
             <div className={styles.userInfo}>
-              <div className={styles.userName}>
-                {currentUser?.name || 'Kullanıcı'}
-              </div>
+              <div className={styles.userName}>{currentUser?.name || 'Kullanıcı'}</div>
               <div className={styles.userRole}>
-                {currentUser?.shift === 'morning' ? '☀️ Sabah' : '🌙 Akşam'}
+                {currentUser?.role === 'manager' ? 'Yönetici' :
+                 currentUser?.role === 'waiter' ? 'Garson' : 'Personel'}
               </div>
             </div>
             <div className={styles.userActions}>
-              <button 
+              <button
+                type="button"
                 className={styles.userActionBtn}
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate('/system/settings')}
                 title="Ayarlar"
               >
                 <Settings size={16} />
               </button>
-              <button 
+              <button
+                type="button"
                 className={styles.userActionBtn}
                 onClick={handleLogout}
                 title="Çıkış"
@@ -203,35 +173,46 @@ export default function Layout({ children }) {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className={styles.main}>
-        {/* Header */}
         <header className={styles.header}>
           <div className={styles.headerContent}>
             <div className={styles.headerLeft}>
-              {/* Hamburger menu — only on mobile */}
               <button
+                type="button"
                 className={styles.hamburgerBtn}
                 onClick={() => setMobileSidebarOpen(true)}
                 aria-label="Menüyü aç"
               >
                 <MenuIcon size={22} />
               </button>
-              <h1 className={styles.headerTitle}>
-                {filteredMainNav.find(i => i.path === location.pathname)?.label ||
-                 filteredSecondaryNav.find(i => i.path === location.pathname)?.label ||
-                 'Dashboard'}
-              </h1>
+
+              <div className={styles.headerTitles}>
+                <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
+                  {breadcrumbs.map((crumb, index) => (
+                    <span key={`${crumb.label}-${index}`} className={styles.breadcrumbItem}>
+                      {index > 0 && <ChevronRight size={14} className={styles.breadcrumbSep} />}
+                      {crumb.path && index < breadcrumbs.length - 1 ? (
+                        <Link to={crumb.path}>{crumb.label}</Link>
+                      ) : (
+                        <span className={index === breadcrumbs.length - 1 ? styles.breadcrumbCurrent : ''}>
+                          {crumb.label}
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </nav>
+                <h1 className={styles.headerTitle}>{pageTitle}</h1>
+              </div>
             </div>
 
             <div className={styles.headerRight}>
+              <span className={styles.demoPill}>{DEMO_EDITION.name}</span>
               <VoiceCommand />
               <div className={styles.headerClock}>
                 <LiveClock />
               </div>
-
-              {/* Notifications */}
               <button
+                type="button"
                 className={styles.headerAction}
                 onClick={() => setShowPanel(!showPanel)}
               >
@@ -242,25 +223,14 @@ export default function Layout({ children }) {
                   </span>
                 )}
               </button>
-
-              {/* User */}
-              <button className={styles.headerAction}>
-                <User size={18} />
-              </button>
             </div>
           </div>
         </header>
 
-        {/* Content */}
-        <div className={styles.content}>
-          {children}
-        </div>
+        <div className={styles.content}>{children}</div>
       </main>
-      
-      {/* Notification Panel */}
-      <NotificationPanel />
 
-      {/* Dev-only performans monitörü */}
+      <NotificationPanel />
       {import.meta.env.DEV && <PerformanceMonitor />}
     </div>
   )

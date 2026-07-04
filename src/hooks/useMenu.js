@@ -124,7 +124,7 @@ export function useUpdateMenuPrice() {
     },
     
     onError: (err) => {
-      toast.error(err?.message || 'Fiyat güncellenemedi!')
+      toast.error(err?.message || 'Fiyat güncellenemedi. Lütfen tekrar deneyin.')
     },
   })
 }
@@ -144,7 +144,7 @@ export function useCreateMenuItem() {
     },
 
     onError: (err) => {
-      toast.error(err?.message || 'Ürün eklenemedi!')
+      toast.error(err?.message || 'Ürün eklenemedi. Bilgileri kontrol edip tekrar deneyin.')
     },
   })
 }

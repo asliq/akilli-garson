@@ -12,6 +12,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { useLogin } from '../hooks/useAuth'
+import { DEMO_EDITION } from '../config/modules'
 import styles from './Login.module.css'
 
 export default function Login() {
@@ -78,8 +79,9 @@ export default function Login() {
           <div className={styles.logoIcon}>
             <ChefHat size={40} />
           </div>
-          <h1>Akıllı Garson</h1>
-          <p>Restoran Yönetim Sistemi</p>
+          <h1>{DEMO_EDITION.productName}</h1>
+          <p>{DEMO_EDITION.productSubtitle}</p>
+          <span className={styles.editionBadge}>{DEMO_EDITION.name}</span>
         </motion.div>
 
         {/* Form */}
@@ -214,7 +216,7 @@ export default function Login() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
-          <p>© 2025 Akıllı Garson - Tüm hakları saklıdır</p>
+          <p>{DEMO_EDITION.footer}</p>
         </motion.div>
       </motion.div>
 
