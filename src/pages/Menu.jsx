@@ -3,23 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Search, 
   Clock, 
-  ToggleLeft, 
-  ToggleRight,
   Edit3,
   Check,
   X,
   Plus,
-  Trash2
 } from 'lucide-react'
 import { Card, CardContent } from '../components/ui/Card'
 import { Button, IconButton } from '../components/ui/Button'
 import { SkeletonCard } from '../components/ui/Skeleton'
 import { 
   useMenuWithCategories, 
-  useUpdateMenuAvailability,
   useUpdateMenuPrice,
   useCreateMenuItem,
-  useDeleteMenuItem
 } from '../hooks/useMenu'
 import styles from './Menu.module.css'
 
@@ -40,26 +35,19 @@ export default function Menu() {
   const [newPrice, setNewPrice] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [addForm, setAddForm] = useState(emptyForm)
-  const [deleteConfirm, setDeleteConfirm] = useState(null) // item id
 
   const { categories, menuItems, isLoading, isError, error, refetch } = useMenuWithCategories()
-  const updateAvailability = useUpdateMenuAvailability()
   const updatePrice = useUpdateMenuPrice()
   const createItem = useCreateMenuItem()
-  const deleteItem = useDeleteMenuItem()
 
   // Filtreleme
   const filteredItems = menuItems.filter(item => {
     const categoryMatch = !selectedCategory || item.categoryId === selectedCategory
     const searchMatch = !searchQuery || 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      (item.description || '').toLowerCase().includes(searchQuery.toLowerCase())
     return categoryMatch && searchMatch
   })
-
-  const toggleAvailability = (item) => {
-    updateAvailability.mutate({ id: item.id, isAvailable: !item.isAvailable })
-  }
 
   const startEditPrice = (item) => {
     setEditingPrice(item.id)
@@ -94,13 +82,6 @@ export default function Menu() {
         setShowAddModal(false)
         setAddForm(emptyForm)
       }
-    })
-  }
-
-  const handleDeleteConfirm = () => {
-    if (!deleteConfirm) return
-    deleteItem.mutate(deleteConfirm, {
-      onSuccess: () => setDeleteConfirm(null)
     })
   }
 
@@ -152,11 +133,24 @@ export default function Menu() {
         <Button
           variant="primary"
           icon={Plus}
-          onClick={() => { setAddForm({ ...emptyForm, categoryId: categories[0]?.id || null }); setShowAddModal(true) }}
+          onClick={() => {
+            if (categories.length === 0) {
+              return
+            }
+            setAddForm({ ...emptyForm, categoryId: categories[0]?.id || null })
+            setShowAddModal(true)
+          }}
+          disabled={categories.length === 0}
         >
           Ürün Ekle
         </Button>
       </div>
+
+      {categories.length === 0 && (
+        <div className={styles.emptyState}>
+          <p>Henüz kategori yok. Ürün eklemek için önce API üzerinden kategori oluşturulmalı.</p>
+        </div>
+      )}
 
       {/* Kategoriler */}
       <div className={styles.categories}>
@@ -225,14 +219,6 @@ export default function Menu() {
                         <span>Stokta Yok</span>
                       </div>
                     )}
-                    {/* Sil Butonu */}
-                    <button
-                      className={styles.deleteBtn}
-                      onClick={() => setDeleteConfirm(item.id)}
-                      title="Ürünü sil"
-                    >
-                      <Trash2 size={14} />
-                    </button>
                   </div>
 
                   <CardContent className={styles.cardContent}>
@@ -280,17 +266,6 @@ export default function Menu() {
                         </div>
                       )}
 
-                      <button 
-                        className={`${styles.stockToggle} ${item.isAvailable ? styles.inStock : styles.outOfStock}`}
-                        onClick={() => toggleAvailability(item)}
-                        disabled={updateAvailability.isPending}
-                      >
-                        {item.isAvailable ? (
-                          <><ToggleRight size={20} /><span>Stokta</span></>
-                        ) : (
-                          <><ToggleLeft size={20} /><span>Yok</span></>
-                        )}
-                      </button>
                     </div>
                   </CardContent>
                 </Card>
@@ -405,46 +380,6 @@ export default function Menu() {
                   </Button>
                 </div>
               </form>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Silme Onay Modalı */}
-      <AnimatePresence>
-        {deleteConfirm && (
-          <>
-            <motion.div
-              className={styles.modalOverlay}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setDeleteConfirm(null)}
-            />
-            <motion.div
-              className={`${styles.modal} ${styles.confirmModal}`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-            >
-              <Trash2 size={32} className={styles.confirmIcon} />
-              <h3>Ürünü sil?</h3>
-              <p>
-                <strong>{menuItems.find(i => i.id === deleteConfirm)?.name}</strong> menüden
-                kalıcı olarak silinecek. Bu işlem geri alınamaz.
-              </p>
-              <div className={styles.modalActions}>
-                <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
-                  İptal
-                </Button>
-                <button
-                  className={styles.dangerBtn}
-                  onClick={handleDeleteConfirm}
-                  disabled={deleteItem.isPending}
-                >
-                  {deleteItem.isPending ? 'Siliniyor...' : 'Evet, Sil'}
-                </button>
-              </div>
             </motion.div>
           </>
         )}

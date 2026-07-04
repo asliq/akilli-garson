@@ -20,7 +20,6 @@ import {
 } from 'lucide-react'
 import { usePublicMenu } from '../../hooks/usePublicMenu'
 import { useCreatePublicOrder } from '../../hooks/useOrders'
-import { useCreateServiceCall } from '../../hooks/useServiceCalls'
 import { setRestaurantId } from '../../api/services'
 import { useTranslation } from '../../hooks/useTranslation'
 import toast from 'react-hot-toast'
@@ -48,7 +47,6 @@ export default function CustomerMenu() {
 
   const { data: publicMenu, isLoading, isError, error, refetch } = usePublicMenu(customerTable?.tableToken)
   const createOrder = useCreatePublicOrder()
-  const createServiceCall = useCreateServiceCall()
   const { t } = useTranslation()
 
   // Son siparişler (localStorage)
@@ -121,22 +119,7 @@ export default function CustomerMenu() {
   const serviceFee = cartTotal * 0.10 // %10 servis ücreti
   const totalWithService = cartTotal + serviceFee
 
-  const sendServiceCall = (type) => {
-    if (!customerTable) return
-    createServiceCall.mutate({
-      tableId: customerTable.tableId,
-      tableNumber: customerTable.tableNumber,
-      type,
-    }, {
-      onSuccess: () => {
-        toast.success(type === 'bill' ? t('customer.requestBill') + ' ✓' : t('customer.callWaiter') + ' ✓')
-      },
-    })
-  }
-
-  const handleCallWaiter = () => sendServiceCall('waiter')
   const handleRequestBill = () => {
-    sendServiceCall('bill')
     setShowPayment(true)
   }
 
@@ -362,10 +345,6 @@ export default function CustomerMenu() {
 
       {/* Quick Actions */}
       <div className={styles.quickActions}>
-        <button className={styles.quickBtn} onClick={handleCallWaiter}>
-          <Bell size={20} />
-          <span>Garson Çağır</span>
-        </button>
         <button className={styles.quickBtn} onClick={() => navigate('/customer/orders')}>
           <Clock size={20} />
           <span>Siparişlerim</span>

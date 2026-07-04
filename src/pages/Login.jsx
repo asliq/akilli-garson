@@ -42,7 +42,13 @@ export default function Login() {
   }
 
   const handleQuickLogin = (email) => {
-    setFormData({ email, pin: '1234' })
+    const credentials = { email, pin: '1234' }
+    setFormData(credentials)
+    setError('')
+    loginMutation.mutate(credentials, {
+      onSuccess: () => navigate('/'),
+      onError: (err) => setError(err.message || 'Giriş başarısız'),
+    })
   }
 
   return (
@@ -183,7 +189,7 @@ export default function Login() {
           <div className={styles.quickUsers}>
             <button 
               type="button"
-              onClick={() => handleQuickLogin('ahmet@restaurant.com')}
+              onClick={() => handleQuickLogin('ahmet@restoran.com')}
               className={styles.quickUser}
             >
               <span className={styles.avatar}>👨‍🍳</span>
@@ -191,19 +197,11 @@ export default function Login() {
             </button>
             <button 
               type="button"
-              onClick={() => handleQuickLogin('ayse@restaurant.com')}
+              onClick={() => handleQuickLogin('ayse@restoran.com')}
               className={styles.quickUser}
             >
               <span className={styles.avatar}>👩‍🍳</span>
               <span>Ayşe</span>
-            </button>
-            <button 
-              type="button"
-              onClick={() => handleQuickLogin('mehmet@restaurant.com')}
-              className={styles.quickUser}
-            >
-              <span className={styles.avatar}>👨‍🍳</span>
-              <span>Mehmet</span>
             </button>
           </div>
           <p className={styles.hint}>PIN: 1234</p>

@@ -1,0 +1,193 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 960px;
+}
+
+.hero {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.75rem;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--primary-light) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.heroIcon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-lg);
+}
+
+.heroContent {
+  flex: 1;
+}
+
+.editionBadge {
+  display: inline-block;
+  padding: 0.2rem 0.625rem;
+  margin-bottom: 0.5rem;
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-sub);
+  max-width: 52ch;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.statusBlock {
+  padding: 1rem;
+  background: var(--bg-page);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+}
+
+.phaseBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--warning-light);
+  color: var(--warning);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.phaseLabel {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.phaseDetail {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.note {
+  display: flex;
+  gap: 0.625rem;
+  margin-top: 1rem;
+  padding: 0.875rem;
+  background: var(--info-light);
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--info);
+}
+
+.note p {
+  margin: 0;
+}
+
+.capabilityList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.capabilityList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  color: var(--text-sub);
+  line-height: 1.45;
+}
+
+.checkIcon {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  color: var(--success);
+}
+
+.footer {
+  padding: 1rem 1.25rem;
+  background: var(--bg-page);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+    padding: 1.25rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 1.375rem;
+  }
+}

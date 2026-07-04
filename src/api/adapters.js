@@ -49,13 +49,15 @@ export function mapMenuItem(item, categoryId = null) {
     ? Math.max(1, Math.ceil(item.preparationTimeSeconds / 60))
     : 10
 
+  const status = String(item.status || '').toLowerCase()
+
   return {
     id: item.id,
     name: item.name,
     description: item.description ?? '',
     price: minorToMajor(item.basePriceMinor),
     categoryId,
-    isAvailable: String(item.status || '').toLowerCase() === 'active',
+    isAvailable: status !== 'out_of_stock' && status !== 'archived',
     status: item.status,
     image: item.imageUrl || DEFAULT_IMAGE,
     preparationTime: preparationMinutes,

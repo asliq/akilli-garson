@@ -15,7 +15,6 @@ import {
 } from 'lucide-react'
 import { useOrders, useUpdateOrderStatus } from '../../hooks/useOrders'
 import { useMenuItems } from '../../hooks/useMenu'
-import { useCreateServiceCall } from '../../hooks/useServiceCalls'
 import { setRestaurantId } from '../../api/services'
 import { useTranslation } from '../../hooks/useTranslation'
 import toast from 'react-hot-toast'
@@ -94,7 +93,6 @@ export default function CustomerOrders() {
   const { data: allOrders, isLoading, isError, error, refetch, isRefetching } = useOrders()
   const { data: menuItems } = useMenuItems()
   const updateStatus = useUpdateOrderStatus()
-  const createServiceCall = useCreateServiceCall()
   const { t } = useTranslation()
 
   const getItemName = (menuItemId, item) => {
@@ -126,17 +124,6 @@ export default function CustomerOrders() {
   const activeOrders = orders.filter(o => 
     ['pending', 'preparing', 'ready', 'served'].includes(o.status)
   )
-
-  const handleCallWaiter = () => {
-    if (!customerTable) return
-    createServiceCall.mutate({
-      tableId: customerTable.tableId,
-      tableNumber: customerTable.tableNumber,
-      type: 'waiter',
-    }, {
-      onSuccess: () => toast.success(t('customer.callWaiter') + ' ✓'),
-    })
-  }
 
   const handleCancelOrder = (orderId) => {
     if (!window.confirm('Siparişi iptal etmek istiyor musunuz?')) return
@@ -322,12 +309,6 @@ export default function CustomerOrders() {
           </div>
         )}
       </div>
-
-      {/* Quick Action */}
-      <button className={styles.callWaiterBtn} onClick={handleCallWaiter}>
-        <Bell size={20} />
-        <span>Garson Çağır</span>
-      </button>
 
       {/* Order Detail Modal */}
       {selectedOrder && (

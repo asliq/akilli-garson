@@ -1,19 +1,16 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import toast from 'react-hot-toast'
 
 export function KeyboardShortcuts() {
   const navigate = useNavigate()
 
   useEffect(() => {
     const handleKeyPress = (e) => {
-      // Ctrl/Cmd kombinasyonları
-      // Not: Ctrl+K CommandPalette bileşeni tarafından yönetilir
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
-        switch(e.key.toLowerCase()) {
+        switch (e.key.toLowerCase()) {
           case 'n':
             e.preventDefault()
-            navigate('/tables')
+            navigate('/orders')
             break
           case 'h':
             e.preventDefault()
@@ -23,24 +20,16 @@ export function KeyboardShortcuts() {
             e.preventDefault()
             navigate('/menu')
             break
-        }
-      }
-
-      // Rakam tuşları (masa kısayolları)
-      if (!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
-        const num = parseInt(e.key)
-        if (num >= 1 && num <= 9) {
-          const target = document.activeElement
-          if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+          case 'k':
             e.preventDefault()
-            toast(`Masa ${num}'e git (yakında)`)
-          }
+            navigate('/kitchen')
+            break
+          default:
+            break
         }
       }
 
-      // ESC tuşu
       if (e.key === 'Escape') {
-        // Dialog/Modal kapatma
         const dialogs = document.querySelectorAll('[role="dialog"]')
         if (dialogs.length > 0) {
           e.preventDefault()
@@ -55,16 +44,14 @@ export function KeyboardShortcuts() {
   return null
 }
 
-// Klavye kısayolları yardım modali
 export function KeyboardShortcutsHelp({ isOpen, onClose }) {
   if (!isOpen) return null
 
   const shortcuts = [
     { key: 'Ctrl+H', desc: 'Anasayfa' },
-    { key: 'Ctrl+N', desc: 'Masalar' },
+    { key: 'Ctrl+N', desc: 'Siparişler' },
     { key: 'Ctrl+M', desc: 'Menü Yönetimi' },
-    { key: 'Ctrl+S', desc: 'Ayarlar' },
-    { key: '1-9', desc: 'Masaya git' },
+    { key: 'Ctrl+K', desc: 'Mutfak' },
     { key: 'ESC', desc: 'Dialog kapat' },
   ]
 
@@ -131,4 +118,3 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }) {
     </>
   )
 }
-

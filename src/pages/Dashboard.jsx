@@ -8,8 +8,6 @@ import {
   ShoppingBag,
   CheckCircle,
   RefreshCw,
-  Users,
-  Plus
 } from 'lucide-react'
 import { useTranslation } from '../hooks/useTranslation'
 import { useOrders } from '../hooks/useOrders'
@@ -25,7 +23,7 @@ const formatCurrency = (value) => {
     style: 'currency', 
     currency: 'TRY',
     minimumFractionDigits: 0
-  }).format(value)
+  }).format(value ?? 0)
 }
 
 const formatTime = (date) => {
@@ -57,19 +55,19 @@ export default function Dashboard() {
 
   // İstatistikleri hesapla
   const dashboardStats = useMemo(() => {
-    if (!orders) return null
+    const orderList = orders ?? []
 
-    const activeOrders = orders.filter(o =>
+    const activeOrders = orderList.filter(o =>
       ['pending', 'preparing', 'ready'].includes(o.status)
     )
 
-    const todayOrders = orders.filter(o => {
+    const todayOrders = orderList.filter(o => {
       const orderDate = new Date(o.createdAt)
       const today = new Date()
       return orderDate.toDateString() === today.toDateString()
     })
 
-    const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0)
+    const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.total || 0), 0)
     const completedToday = todayOrders.filter(o => o.status === 'completed').length
     const avgOrderValue = todayOrders.length > 0 ? todayRevenue / todayOrders.length : 0
 
@@ -86,8 +84,8 @@ export default function Dashboard() {
     if (!orders || !menuItems) return []
 
     const itemCounts = {}
-    orders.forEach(order => {
-      order.items.forEach(item => {
+    orders?.forEach(order => {
+      ;(order.items || []).forEach(item => {
         if (!itemCounts[item.menuItemId]) {
           itemCounts[item.menuItemId] = {
             count: 0,
@@ -115,28 +113,17 @@ export default function Dashboard() {
     setTimeout(() => setIsRefreshing(false), 1000)
   }
 
-  if (isLoading) {
-    return <div className={styles.dashboard}>Yükleniyor...</div>
-  }
-
-  if (isError) {
-    return (
-      <div className={styles.dashboard}>
-        <div className={styles.errorState}>
-          <p>Dashboard verileri yüklenemedi.</p>
-          <p className={styles.errorDetail}>{error?.message || 'API bağlantı hatası'}</p>
-          <button type="button" onClick={() => refetchOrders()}>Tekrar Dene</button>
-        </div>
-      </div>
-    )
-  }
-
-  if (!dashboardStats) {
-    return <div className={styles.dashboard}>Yükleniyor...</div>
-  }
+  const ordersLoading = isLoading && orders === undefined
 
   return (
     <div className={styles.dashboard}>
+      {isError && (
+        <div className={styles.errorBanner}>
+          <p>Sipariş verileri yüklenemedi: {error?.message || 'Bağlantı hatası'}</p>
+          <button type="button" onClick={() => refetchOrders()}>Tekrar Dene</button>
+        </div>
+      )}
+
       {/* Header */}
       <div className={styles.dashboardHeader}>
         <div className={styles.greeting}>
@@ -234,22 +221,8 @@ export default function Dashboard() {
 
       {/* Main Grid */}
       <div className={styles.mainGrid}>
-        {/* Table Status */}
-        <div className={`${styles.section} ${styles.column4}`}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>Masa Durumu</h3>
-            <button className={styles.sectionAction} onClick={() => navigate('/tables')}>
-              Tümünü Gör
-            </button>
-          </div>
-          
-          <div className={styles.tableSummary}>
-            <p className={styles.sectionDisabled}>Masa API henüz aktif değil</p>
-          </div>
-        </div>
-
         {/* Active Orders */}
-        <div className={`${styles.section} ${styles.column4}`}>
+        <div className={`${styles.section} ${styles.column6}`}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>Aktif Siparişler</h3>
             <button className={styles.sectionAction} onClick={() => navigate('/orders')}>
@@ -257,13 +230,18 @@ export default function Dashboard() {
             </button>
           </div>
           
+          {ordersLoading ? (
+            <p className={styles.sectionMuted}>Siparişler yükleniyor…</p>
+          ) : dashboardStats.activeOrders.length === 0 ? (
+            <p className={styles.sectionMuted}>Aktif sipariş yok</p>
+          ) : (
           <div className={styles.ordersList}>
             {dashboardStats.activeOrders.slice(0, 6).map(order => (
-              <div key={order.id} className={styles.orderItem} onClick={() => navigate(`/orders/${order.id}`)}>
-                <div className={styles.orderTable}>M{order.tableId}</div>
+              <div key={order.id} className={styles.orderItem} onClick={() => navigate('/orders')}>
+                <div className={styles.orderTable}>M{String(order.tableId || '').slice(-4) || '?'}</div>
                 <div className={styles.orderDetails}>
-                  <div className={styles.orderNumber}>Sipariş #{order.id}</div>
-                  <div className={styles.orderItems}>{order.items.length} ürün</div>
+                  <div className={styles.orderNumber}>Sipariş #{String(order.id).slice(0, 8)}</div>
+                  <div className={styles.orderItems}>{(order.items || []).length} ürün</div>
                 </div>
                 <div className={styles.orderMeta}>
                   <div className={`${styles.orderStatus} ${styles[order.status]}`}>
@@ -275,10 +253,11 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+          )}
         </div>
 
         {/* Popular Items */}
-        <div className={`${styles.section} ${styles.column4}`}>
+        <div className={`${styles.section} ${styles.column6}`}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>Popüler Ürünler</h3>
             <button className={styles.sectionAction} onClick={() => navigate('/menu')}>
@@ -287,7 +266,10 @@ export default function Dashboard() {
           </div>
           
           <div className={styles.popularList}>
-            {popularItems.map((item, index) => (
+            {popularItems.length === 0 ? (
+              <p className={styles.sectionMuted}>Henüz satış verisi yok</p>
+            ) : (
+            popularItems.map((item, index) => (
               <div key={item.id} className={styles.popularItem}>
                 <div className={styles.popularRank}>{index + 1}</div>
                 <div className={styles.popularInfo}>
@@ -299,7 +281,8 @@ export default function Dashboard() {
                   <div className={styles.popularRevenue}>{formatCurrency(item.revenue)}</div>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </div>
       </div>

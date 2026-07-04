@@ -8,8 +8,14 @@ import { NotificationProvider } from './components/NotificationProvider'
 import { ThemeProvider } from './components/ThemeProvider'
 import { WebSocketProvider } from './components/WebSocketProvider'
 import ErrorBoundary from './components/ErrorBoundary'
+import { setRestaurantId } from './api/axios'
 import App from './App.jsx'
 import './index.css'
+
+const defaultRestaurantId = import.meta.env.VITE_RESTAURANT_ID
+if (defaultRestaurantId) {
+  setRestaurantId(defaultRestaurantId)
+}
 
 // TanStack Query Client - Akıllı cache ve retry stratejisi
 const queryClient = new QueryClient({

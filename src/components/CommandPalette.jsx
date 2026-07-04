@@ -27,32 +27,18 @@ import {
 } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 import { useLogout } from '../hooks/useAuth'
+import { isStaffRouteVisible } from '../config/features'
 import styles from './CommandPalette.module.css'
 
 const commands = [
-  // Navigation
   { id: 'nav-dashboard', label: 'Anasayfa', description: 'Dashboard\'a git', icon: LayoutDashboard, category: 'Navigasyon', action: 'navigate', path: '/', shortcut: 'G D' },
-  { id: 'nav-tables', label: 'Masalar', description: 'Masa yönetimine git', icon: Grid3X3, category: 'Navigasyon', action: 'navigate', path: '/tables', shortcut: 'G T' },
   { id: 'nav-orders', label: 'Siparişler', description: 'Sipariş listesine git', icon: ClipboardList, category: 'Navigasyon', action: 'navigate', path: '/orders', shortcut: 'G O' },
   { id: 'nav-kitchen', label: 'Mutfak', description: 'Mutfak ekranına git', icon: ChefHat, category: 'Navigasyon', action: 'navigate', path: '/kitchen', shortcut: 'G K' },
   { id: 'nav-menu', label: 'Menü Yönetimi', description: 'Menü düzenle', icon: UtensilsCrossed, category: 'Navigasyon', action: 'navigate', path: '/menu', shortcut: 'G M' },
-  { id: 'nav-reservations', label: 'Rezervasyonlar', description: 'Rezervasyon yönetimi', icon: CalendarDays, category: 'Navigasyon', action: 'navigate', path: '/reservations', shortcut: 'G R' },
-  { id: 'nav-analytics', label: 'Raporlar', description: 'Analitik ve raporlar', icon: BarChart3, category: 'Navigasyon', action: 'navigate', path: '/analytics', shortcut: 'G A' },
-  { id: 'nav-daily-report', label: 'Günlük Rapor', description: 'Gün sonu özeti', icon: FileText, category: 'Navigasyon', action: 'navigate', path: '/daily-report' },
-  { id: 'nav-waiters', label: 'Garsonlar', description: 'Garson yönetimi', icon: Users, category: 'Navigasyon', action: 'navigate', path: '/waiters' },
-  { id: 'nav-inventory', label: 'Stok Yönetimi', description: 'Envanter takibi', icon: Package, category: 'Navigasyon', action: 'navigate', path: '/inventory' },
   { id: 'nav-settings', label: 'Ayarlar', description: 'Sistem ayarları', icon: Settings, category: 'Navigasyon', action: 'navigate', path: '/settings', shortcut: 'G S' },
-  
-  // Actions
-  { id: 'action-new-order', label: 'Yeni Sipariş', description: 'Hızlı sipariş oluştur', icon: Plus, category: 'Eylemler', action: 'new-order', shortcut: 'N' },
   { id: 'action-refresh', label: 'Verileri Yenile', description: 'Tüm verileri güncelle', icon: RefreshCw, category: 'Eylemler', action: 'refresh', shortcut: 'R' },
-  { id: 'action-notifications', label: 'Bildirimler', description: 'Bildirimleri aç', icon: Bell, category: 'Eylemler', action: 'notifications', shortcut: 'B' },
-  
-  // Settings
   { id: 'setting-theme', label: 'Tema Değiştir', description: 'Koyu/Açık tema', icon: Moon, category: 'Ayarlar', action: 'toggle-theme' },
   { id: 'setting-sound', label: 'Ses Aç/Kapat', description: 'Bildirim seslerini yönet', icon: Volume2, category: 'Ayarlar', action: 'toggle-sound' },
-  
-  // System
   { id: 'system-logout', label: 'Çıkış Yap', description: 'Oturumu sonlandır', icon: LogOut, category: 'Sistem', action: 'logout' },
 ]
 
@@ -70,7 +56,11 @@ export function CommandPalette() {
   const logoutMutation = useLogout()
 
   // Filter commands
-  const filteredCommands = commands.filter(cmd => {
+  const visibleCommands = commands.filter(cmd =>
+    cmd.action !== 'navigate' || isStaffRouteVisible(cmd.path)
+  )
+
+  const filteredCommands = visibleCommands.filter(cmd => {
     const searchStr = `${cmd.label} ${cmd.description} ${cmd.category}`.toLowerCase()
     return searchStr.includes(query.toLowerCase())
   })

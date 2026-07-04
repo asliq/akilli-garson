@@ -8,15 +8,11 @@ import styles from './VoiceCommand.module.css'
 const voiceCommands = {
   'anasayfa': { action: 'navigate', path: '/' },
   'dashboard': { action: 'navigate', path: '/' },
-  'masalar': { action: 'navigate', path: '/tables' },
   'siparişler': { action: 'navigate', path: '/orders' },
   'siparis': { action: 'navigate', path: '/orders' },
   'mutfak': { action: 'navigate', path: '/kitchen' },
   'menü': { action: 'navigate', path: '/menu' },
   'menu': { action: 'navigate', path: '/menu' },
-  'rezervasyon': { action: 'navigate', path: '/reservations' },
-  'raporlar': { action: 'navigate', path: '/analytics' },
-  'analiz': { action: 'navigate', path: '/analytics' },
   'ayarlar': { action: 'navigate', path: '/settings' },
   'yenile': { action: 'refresh' },
   'çıkış': { action: 'logout' }

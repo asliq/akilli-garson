@@ -191,10 +191,7 @@ export function useCreatePayment() {
     },
     
     onError: (err) => {
-      if (err?.message === 'PAYMENTS_DISABLED') {
-        toast('Ödeme API henüz aktif değil', { icon: 'ℹ️' })
-        return
-      }
+      if (err?.message === 'PAYMENTS_DISABLED') return
       toast.error('Ödeme işlemi başarısız!')
     },
   })
@@ -223,10 +220,7 @@ export function useCreateSplitPayment() {
     },
     
     onError: (err) => {
-      if (err?.message === 'PAYMENTS_DISABLED') {
-        toast('Ödeme API henüz aktif değil', { icon: 'ℹ️' })
-        return
-      }
+      if (err?.message === 'PAYMENTS_DISABLED') return
       toast.error('Bölünmüş ödeme işlemi başarısız!')
     },
   })

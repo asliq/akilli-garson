@@ -2,15 +2,9 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Zap,
-  Plus,
-  Table,
-  Receipt,
-  CreditCard,
-  Bell,
-  Users,
+  ClipboardList,
   ChefHat,
-  Package,
-  Printer,
+  UtensilsCrossed,
   X,
   ArrowRight
 } from 'lucide-react'
@@ -19,26 +13,10 @@ import styles from './QuickActions.module.css'
 
 const actions = [
   {
-    id: 'new-order',
-    label: 'Yeni Sipariş',
-    description: 'Masa seç ve sipariş oluştur',
-    icon: Plus,
-    color: '#e85d04',
-    path: '/tables'
-  },
-  {
-    id: 'open-tables',
-    label: 'Açık Masalar',
-    description: 'Aktif masaları görüntüle',
-    icon: Table,
-    color: '#22c55e',
-    path: '/tables'
-  },
-  {
     id: 'active-orders',
     label: 'Aktif Siparişler',
     description: 'Bekleyen siparişler',
-    icon: Receipt,
+    icon: ClipboardList,
     color: '#f59e0b',
     path: '/orders'
   },
@@ -51,21 +29,13 @@ const actions = [
     path: '/kitchen'
   },
   {
-    id: 'payment',
-    label: 'Ödeme Al',
-    description: 'Hesap kapat',
-    icon: CreditCard,
-    color: '#06b6d4',
-    path: '/orders'
+    id: 'menu',
+    label: 'Menü Yönetimi',
+    description: 'Ürün ve fiyatlar',
+    icon: UtensilsCrossed,
+    color: '#e85d04',
+    path: '/menu'
   },
-  {
-    id: 'reservations',
-    label: 'Rezervasyonlar',
-    description: 'Bugünkü rezervasyonlar',
-    icon: Users,
-    color: '#ec4899',
-    path: '/reservations'
-  }
 ]
 
 export function QuickActions() {
@@ -79,7 +49,6 @@ export function QuickActions() {
 
   return (
     <>
-      {/* Floating Button */}
       <motion.button
         className={styles.floatingButton}
         onClick={() => setIsOpen(true)}
@@ -90,7 +59,6 @@ export function QuickActions() {
         <span>Hızlı İşlem</span>
       </motion.button>
 
-      {/* Modal */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -148,14 +116,6 @@ export function QuickActions() {
                   </motion.button>
                 ))}
               </div>
-
-              <div className={styles.footer}>
-                <span className={styles.shortcut}>
-                  <kbd>⌘</kbd>
-                  <kbd>K</kbd>
-                  ile tüm komutlara ulaşın
-                </span>
-              </div>
             </motion.div>
           </>
         )}
@@ -163,4 +123,3 @@ export function QuickActions() {
     </>
   )
 }
-

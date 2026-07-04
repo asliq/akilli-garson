@@ -42,7 +42,7 @@ export default function Kitchen() {
   const [filter, setFilter] = useState('all')
   const { t } = useTranslation()
 
-  const { data: kitchenOrders, refetch, isRefetching } = useKitchenOrders()
+  const { data: kitchenOrders, refetch, isRefetching, isLoading, isError, error } = useKitchenOrders()
   const { data: menuItems } = useMenuItems()
   const updateItemStatus = useUpdateKitchenItemStatus()
   const markOrderReady = useMarkOrderReady()
@@ -85,6 +85,20 @@ export default function Kitchen() {
   const pendingCount = kitchenOrders?.filter(o => o.items.some(i => i.status === 'pending')).length || 0
   const preparingCount = kitchenOrders?.filter(o => o.items.some(i => i.status === 'preparing')).length || 0
   const readyCount = kitchenOrders?.filter(o => o.items.every(i => i.status === 'ready' || i.status === 'served')).length || 0
+
+  if (isLoading && !kitchenOrders) {
+    return <div className={styles.kitchen}>Yükleniyor...</div>
+  }
+
+  if (isError) {
+    return (
+      <div className={styles.kitchen}>
+        <p>Siparişler yüklenemedi.</p>
+        <p>{error?.message || 'Bağlantı hatası'}</p>
+        <button type="button" onClick={() => refetch()}>Tekrar Dene</button>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.kitchen}>

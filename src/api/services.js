@@ -6,10 +6,23 @@ import {
   mapOrder,
   mapPublicMenuItem,
   mapPublicOrder,
+  minorToMajor,
   toApiOrderStatus,
 } from './adapters'
 
 export { setRestaurantId }
+
+function generateSku(name) {
+  const normalized = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .slice(0, 20)
+
+  const prefix = normalized.length > 0 ? normalized : 'ITEM'
+  return `${prefix}-${Date.now().toString().slice(-6)}`
+}
 
 // ==========================================
 // KATEGORİ SERVİSLERİ
@@ -76,16 +89,16 @@ export const menuApi = {
     const { data } = await axiosInstance.patch(`/menu/items/${id}/price`, {
       amountMinor: majorToMinor(price),
     })
-    return mapMenuItem(data)
+
+    return {
+      id: data.menuItemId || id,
+      price: minorToMajor(data.amountMinor),
+      currencyCode: data.currencyCode || 'TRY',
+    }
   },
 
   create: async (item) => {
-    const sku =
-      item.sku ||
-      `${item.name
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, '')
-        .slice(0, 20)}-${Date.now().toString().slice(-4)}`
+    const sku = item.sku || generateSku(item.name)
 
     const { data } = await axiosInstance.post('/menu/items', {
       name: item.name,

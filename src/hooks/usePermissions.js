@@ -2,8 +2,9 @@ import { useMemo } from 'react'
 import { useAppStore } from '../store/useAppStore'
 
 const ROLE_ACCESS = {
-  admin: ['/', '/tables', '/orders', '/kitchen', '/menu', '/reservations', '/analytics', '/daily-report', '/waiters', '/inventory', '/settings'],
-  waiter: ['/', '/tables', '/orders', '/kitchen', '/menu', '/reservations'],
+  admin: ['/', '/orders', '/kitchen', '/menu'],
+  manager: ['/', '/orders', '/kitchen', '/menu'],
+  waiter: ['/', '/orders', '/kitchen', '/menu'],
   kitchen: ['/kitchen'],
 }
 

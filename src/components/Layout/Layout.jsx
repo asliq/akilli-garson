@@ -20,13 +20,13 @@ import {
 } from 'lucide-react'
 import { useActiveOrdersCount } from '../../hooks/useOrders'
 import { useCurrentUser, useLogout } from '../../hooks/useAuth'
-import { useTodayReservationsCount } from '../../hooks/useReservations'
 import { useNotifications, NotificationPanel } from '../NotificationProvider'
 import { WebSocketStatus } from '../WebSocketStatus'
 import { LiveClock } from '../LiveClock'
 import { VoiceCommand } from '../VoiceCommand'
 import { PerformanceMonitor } from '../PerformanceMonitor'
 import { usePermissions } from '../../hooks/usePermissions'
+import { isStaffRouteVisible } from '../../config/features'
 import styles from './Layout.module.css'
 
 const mainNavItems = [
@@ -57,13 +57,13 @@ export default function Layout({ children }) {
   }, [location.pathname])
   
   const activeOrdersCount = useActiveOrdersCount()
-  const reservationsCount = useTodayReservationsCount()
   const currentUser = useCurrentUser()
   const logoutMutation = useLogout()
-  const { canAccess, role } = usePermissions()
+  const { canAccess } = usePermissions()
 
-  const filteredMainNav = mainNavItems.filter(item => canAccess(item.path))
-  const filteredSecondaryNav = secondaryNavItems.filter(item => canAccess(item.path))
+  const navVisible = (item) => isStaffRouteVisible(item.path) && canAccess(item.path)
+  const filteredMainNav = mainNavItems.filter(navVisible)
+  const filteredSecondaryNav = secondaryNavItems.filter(navVisible)
   const { unreadCount, setShowPanel, showPanel } = useNotifications()
 
   useEffect(() => {
@@ -85,7 +85,6 @@ export default function Layout({ children }) {
 
   const getBadgeCount = (badgeType) => {
     if (badgeType === 'orders') return activeOrdersCount
-    if (badgeType === 'reservations') return reservationsCount
     return 0
   }
 

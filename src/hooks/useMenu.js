@@ -120,11 +120,11 @@ export function useUpdateMenuPrice() {
     
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: menuKeys.all })
-      toast.success(`${data.name} fiyatı güncellendi: ₺${data.price}`)
+      toast.success(`Fiyat güncellendi: ₺${data.price}`)
     },
     
-    onError: () => {
-      toast.error('Fiyat güncellenemedi!')
+    onError: (err) => {
+      toast.error(err?.message || 'Fiyat güncellenemedi!')
     },
   })
 }
@@ -143,8 +143,8 @@ export function useCreateMenuItem() {
       toast.success(`${data.name} menüye eklendi!`)
     },
 
-    onError: () => {
-      toast.error('Ürün eklenemedi!')
+    onError: (err) => {
+      toast.error(err?.message || 'Ürün eklenemedi!')
     },
   })
 }

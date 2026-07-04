@@ -116,10 +116,10 @@ export default function Orders() {
   const handlePaymentConfirm = () => {
     if (!paymentOrder) return
 
-    if (!API_ENABLED.payments) {
-      completeOrderAfterPayment()
-      return
-    }
+  if (!API_ENABLED.payments) {
+        completeOrderAfterPayment()
+        return
+      }
 
     const apiMethod = paymentMethods.find(m => m.id === paymentMethod)?.apiMethod || 'cash'
 
@@ -186,10 +186,7 @@ export default function Orders() {
   }
 
   const handleMerge = (fromTableId, toTableId) => {
-    if (!API_ENABLED.tables) {
-      toast('Masa birleştirme henüz kullanılamıyor', { icon: 'ℹ️' })
-      return
-    }
+    if (!API_ENABLED.tables) return
     if (!tableOps?.order || !orders) return
     const targetOrder = orders.find(
       o => o.tableId == toTableId && ['pending', 'preparing', 'ready', 'served'].includes(o.status)
@@ -208,10 +205,7 @@ export default function Orders() {
   }
 
   const handleTransfer = (fromTableId, toTableId) => {
-    if (!API_ENABLED.tables) {
-      toast('Masa transferi henüz kullanılamıyor', { icon: 'ℹ️' })
-      return
-    }
+    if (!API_ENABLED.tables) return
     if (!tableOps?.order) return
     transferOrder.mutate({
       orderId: tableOps.order.id,
