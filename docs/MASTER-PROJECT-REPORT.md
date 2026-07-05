@@ -10,7 +10,7 @@
 
 ## Doküman Amacı
 
-Bu rapor; teknik mülakatlar, yazılım firması sunumları, iş başvuruları, yatırımcı görüşmeleri ve GitHub README hazırlığı için **tek kaynak** olarak kullanılmak üzere hazırlanmıştır. Övgü değil, **gerçekçi değerlendirme** hedeflenmiştir.
+Bu rapor; teknik mülakatlar, bağımsız yazılım mühendisliği portföyü sunumları, iş başvuruları, yatırımcı görüşmeleri ve GitHub README hazırlığı için **tek kaynak** olarak kullanılmak üzere hazırlanmıştır. Övgü değil, **gerçekçi değerlendirme** hedeflenmiştir.
 
 ---
 
@@ -105,7 +105,7 @@ Akıllı:  Müşteri → QR → Sistem → Mutfak (ekran) → Garson (bildirim) 
 | Katman | Mevcut | Hedef |
 |--------|--------|-------|
 | Tenant | `Restaurant` modeli + `X-Restaurant-Id` | JWT claim + subdomain |
-| Faturalama | Yok | Stripe / iyzico abonelik |
+| Faturalama | Yok | SaaS abonelik faturalandırma entegrasyonu |
 | Onboarding | Manuel seed | Self-service kayıt |
 | Veri izolasyonu | Uygulama katmanı | RLS (PostgreSQL) opsiyonel |
 
@@ -213,7 +213,7 @@ flowchart TD
     F --> H[Yazdır - printReceipt tarayıcı]
 ```
 
-*Not: Gerçek kasa entegrasyonu (iyzico, Ingenico, vb.) planlı.*
+*Not: Gerçek kasa entegrasyonu (ödeme gateway ve POS terminal sağlayıcıları) planlı.*
 
 ## 5.4 Mutfak Akışı
 
@@ -886,7 +886,7 @@ sequenceDiagram
 - [ ] POS / ödeme sağlayıcı entegrasyonları (TR)
 - [ ] Franchise dashboard
 - [ ] RLS veya tenant DB stratejisi
-- [ ] 99.9% SLA, monitoring (Grafana/Datadog)
+- [ ] 99.9% SLA, merkezi izleme ve gözlemlenebilirlik (APM)
 - [ ] SOC2 / KVKK uyum çalışması
 
 ---
@@ -921,7 +921,7 @@ sequenceDiagram
 
 ## Threats (Tehditler)
 
-- **Yoğun rakip alanı:** Adisyo, Menulux, Restajet, global Toast/Square
+- **Yoğun rekabet alanı:** Yerel ve global restoran yönetim platformları, QR menü çözümleri, kurumsal POS sistemleri
 - **Düşük switching cost:** Restoranlar basit QR menüye geçebilir
 - **Ödeme regülasyonu:** PCI, KVKK yükü
 - **Yarım ürünle pazara çıkma riski** — güven kaybı
@@ -977,7 +977,7 @@ sequenceDiagram
 **Beğenir:** Kullanıcı akışları, Türkçe UX, geniş feature yüzeyi  
 **Eksik bulur:** Çalışmayan modüller, net MVP sınırı, metrikler
 
-## Yazılım Firması
+## Kurumsal Teknik Değerlendirici
 
 **Beğenir:**
 - Modern stack showcase
@@ -987,7 +987,7 @@ sequenceDiagram
 **Eksik bulur:**
 - Teslim süresi belirsizliği (yarım modüller)
 - Garanti / SLA için production readiness
-- Türkiye ödeme entegrasyonu
+- Bölgesel ödeme ve mali mevzuat entegrasyonu
 
 ---
 
@@ -1011,12 +1011,12 @@ sequenceDiagram
 
 ## Rakipler
 
-| Rakip | Not |
+| Kategori | Not |
 |-------|-----|
-| **Adisyo** | TR pazar lideri adaylarından |
-| **Menulux / Dijital Menü çözümleri** | QR odaklı |
-| **Restajet, Yemeksepeti iş ortağı çözümleri** | Entegre ekosistem |
-| **Toast, Square** | Global referans |
+| **Yerel restoran POS ve operasyon platformları** | Bölgesel pazar, kurulu oyuncular |
+| **Dijital menü ve self-order çözümleri** | QR odaklı, düşük maliyet |
+| **Teslimat platformu iş ortağı çözümleri** | Entegre ekosistem |
+| **Global restoran POS ve ödeme platformları** | Endüstri referans mimarileri |
 | **Basit QR menü SaaS'ları** | Düşük maliyet, sadece menü |
 
 ## Farklılaşma Potansiyeli
@@ -1041,7 +1041,7 @@ sequenceDiagram
 | Pilot restoran (ücretsiz beta) | ⚠️ Kontrollü |
 | Ücretli satış | ❌ Hayır |
 | Yatırımcı pitch (seed) | ⚠️ Vizyon + demo ile, metrik olmadan zor |
-| Kurumsal yazılım firması RFP | ❌ Hayır |
+| Kurumsal satın alma / RFP süreçleri | ❌ Hayır |
 
 ## Neden Hayır (Production / Satış)?
 

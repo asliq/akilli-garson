@@ -1,8 +1,8 @@
 # Akıllı Garson — Product Polish Report
 
 **Tarih:** 4 Temmuz 2026  
-**Hedef:** Teknik mülakat ve portföy sunumu için ticari yazılım ürünü algısı  
-**Referans segment:** AKINSOFT, Logo Yazılım, Nebim, IdeaSoft, Ticimax, ikas, Akinon, Workcube
+**Hedef:** Teknik mülakat ve bağımsız yazılım mühendisliği portföyü için ticari ürün algısı  
+**Referans segment:** Kurumsal ERP yazılımları, modern SaaS platformları, restoran yönetim platformları
 
 ---
 
@@ -216,4 +216,4 @@ Her yol haritası modülü şunları içerir:
 
 ---
 
-*Bu rapor, ticari yazılım sunumu için yapılan ürün cilası sprintinin resmi kaydıdır.*
+*Bu rapor, teknik portföy sunumu için yapılan ürün cilası sprintinin resmi kaydıdır.*

@@ -2,7 +2,7 @@
 
 **Tarih:** 4 Temmuz 2026  
 **Sürüm:** Demo Edition 2.1  
-**Hedef kitle:** Logo, AKINSOFT, Nebim, IdeaSoft, Ticimax, ikas vb. yazılım firmaları
+**Hedef kitle:** Teknik mülakat panelleri, kurumsal yazılım değerlendiricileri ve modern SaaS platform sunumları
 
 ---
 
