@@ -1,8 +1,8 @@
 {
   "name": "akilli-garson",
   "private": true,
-  "version": "2.0.0",
-  "description": "Akıllı Garson — Restaurant Management Platform",
+  "version": "1.0.0-rc2",
+  "description": "Akıllı Garson — Restaurant Management Platform (RC2 Demo Edition)",
   "repository": {
     "type": "git",
     "url": "https://github.com/asliq/akilli-garson.git"
@@ -13,7 +13,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "screenshots": "node scripts/capture-screenshots.mjs",
-    "screenshots:readme": "node scripts/capture-readme-screenshots.mjs"
+    "screenshots:readme": "node scripts/capture-readme-screenshots.mjs",
+    "verify:pages": "node scripts/verify-pages-strict.mjs",
+    "verify:release": "node scripts/rc2-final-release-audit.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.7",

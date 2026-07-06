@@ -42,7 +42,7 @@ src/
 └── main.ts
 ```
 
-See `docs/BACKEND-ISKELET.md` and `docs/MIMARI-TASARIM.md` for full architecture.
+See `docs/architecture/BACKEND-ISKELET.md` and `docs/architecture/MIMARI-TASARIM.md` for full architecture.
 
 ## Scripts
 

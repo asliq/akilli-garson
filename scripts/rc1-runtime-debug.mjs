@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = 'http://localhost:5173'
-const OUT = join(__dirname, '..', 'docs', 'rc1-runtime-debug-results.json')
+const OUT = join(__dirname, '..', 'docs', 'reports', 'rc1-runtime-debug-results.json')
 
 const STAFF_ROUTES = [
   { path: '/', label: 'Dashboard', expect: ['Dashboard', 'Merhaba'] },

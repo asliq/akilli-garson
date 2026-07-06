@@ -1,6 +1,8 @@
 # Documentation
 
-Entry point for **Akıllı Garson** — Restaurant Management Platform — technical documentation (Release Candidate 1).
+Entry point for **Akıllı Garson** — Restaurant Management Platform — technical documentation.
+
+**Current release:** RC2 (`v1.0.0-rc2`) · Demo Edition
 
 ## Start here
 
@@ -8,42 +10,31 @@ Entry point for **Akıllı Garson** — Restaurant Management Platform — techn
 |----------|----------|
 | Everyone | [Repository README](../README.md) |
 | Backend setup | [api/README.md](../api/README.md) |
+| RC2 release summary | [release/RC2_FINAL_RELEASE_REPORT.md](./release/RC2_FINAL_RELEASE_REPORT.md) |
 | Deep technical review | [MASTER_PROJECT_REPORT.md](./MASTER_PROJECT_REPORT.md) |
 | Quick overview | [EXECUTIVE_SUMMARY.md](./EXECUTIVE_SUMMARY.md) |
-| RC1 release notes | [RC1_P0_COMPLETION_REPORT.md](./RC1_P0_COMPLETION_REPORT.md) |
-| Branding & assets | [SCREENSHOT_GUIDE.md](./SCREENSHOT_GUIDE.md) · [BRANDING_AUDIT_REPORT.md](./BRANDING_AUDIT_REPORT.md) |
+| Screenshots | [SCREENSHOT_GUIDE.md](./SCREENSHOT_GUIDE.md) · [assets/screenshots/](./assets/screenshots/) |
 
-## Architecture & domain
+## Documentation map
 
-| Document | Content |
-|----------|---------|
-| [MIMARI-TASARIM.md](./MIMARI-TASARIM.md) | System architecture, bounded contexts, patterns |
-| [BACKEND-ISKELET.md](./BACKEND-ISKELET.md) | NestJS module layout and conventions |
-| [IS-KURALLARI.md](./IS-KURALLARI.md) | Business rules and domain invariants |
-| [MENU-DOMAIN-TASARIMI.md](./MENU-DOMAIN-TASARIMI.md) | Menu aggregate design |
-| [MENU-DATABASE-TASARIMI.md](./MENU-DATABASE-TASARIMI.md) | Menu persistence model |
-| [MENU-CREATE-CATEGORY-USE-CASE.md](./MENU-CREATE-CATEGORY-USE-CASE.md) | Reference use-case spec |
-| [MENU-PRISMA-M1-RAPOR.md](./MENU-PRISMA-M1-RAPOR.md) | Prisma M1 migration notes |
+| Folder | Contents |
+|--------|----------|
+| [architecture/](./architecture/) | Domain design, NestJS layout, menu module specs |
+| [release/](./release/) | RC1 and RC2 release reports and audits |
+| [reports/](./reports/) | Repo cleanup, branding, QA JSON artifacts |
+| [archive/](./archive/) | Pre-NestJS and superseded sprint documents |
+| [assets/screenshots/](./assets/screenshots/) | README screenshots (8 images) |
 
-## Product & roadmap
+## Product
 
 | Document | Content |
 |----------|---------|
 | [YOL-HARITASI.md](./YOL-HARITASI.md) | Product roadmap |
-| [MASTER_PROJECT_REPORT.md](./MASTER_PROJECT_REPORT.md) | Full technical reference (RC1) |
+| [MASTER_PROJECT_REPORT.md](./MASTER_PROJECT_REPORT.md) | Full technical reference |
 | [EXECUTIVE_SUMMARY.md](./EXECUTIVE_SUMMARY.md) | Concise overview |
 
-## RC1 quality assurance
+## Repository maintenance
 
 | Document | Content |
 |----------|---------|
-| [RC1_RUNTIME_AUDIT.md](./RC1_RUNTIME_AUDIT.md) | Runtime test audit |
-| [RC1_STABILIZATION_REPORT.md](./RC1_STABILIZATION_REPORT.md) | Critical/high fixes |
-| [RC1_PRODUCT_EXPERIENCE_AUDIT.md](./RC1_PRODUCT_EXPERIENCE_AUDIT.md) | UX credibility audit |
-| [RC1_P0_COMPLETION_REPORT.md](./RC1_P0_COMPLETION_REPORT.md) | P0 fix log |
-| [REPOSITORY_CLEANUP_PLAN.md](./REPOSITORY_CLEANUP_PLAN.md) | Repo cleanup plan |
-| [REPOSITORY_CLEANUP_REPORT.md](./REPOSITORY_CLEANUP_REPORT.md) | Repo cleanup results |
-
-## Archive
-
-Pre-NestJS and superseded sprint reports: [`archive/`](./archive/README.md)
+| [reports/REPOSITORY_PROFESSIONALIZATION_REPORT.md](./reports/REPOSITORY_PROFESSIONALIZATION_REPORT.md) | RC2 repo quality assessment |

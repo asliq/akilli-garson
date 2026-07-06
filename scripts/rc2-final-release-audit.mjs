@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const BASE = 'http://localhost:5173'
 const API = 'http://localhost:3001'
 const RESTAURANT_ID = '660e8400-e29b-41d4-a716-446655440001'
-const OUT = join(__dirname, '..', 'docs', 'rc2-final-release-audit-results.json')
+const OUT = join(__dirname, '..', 'docs', 'reports', 'rc2-final-release-audit-results.json')
 
 const STAFF_ROUTES = [
   { path: '/login', label: 'Login', expect: ['Giriş', 'Akıllı Garson'], public: true },

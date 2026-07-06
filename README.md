@@ -6,7 +6,7 @@
 
 **Full-stack restoran operasyon platformu — DDD, modular monolith ve realtime üzerine kişisel mühendislik çalışması**
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](./package.json)
+[![Version](https://img.shields.io/badge/version-1.0.0--rc2-blue.svg)](./package.json)
 [![API](https://img.shields.io/badge/API-0.1.0-555.svg)](./api/package.json)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](#license)
 [![GitHub](https://img.shields.io/badge/GitHub-akilli--garson-181717?logo=github)](https://github.com/asliq/akilli-garson)
@@ -426,12 +426,15 @@ akilli-garson/
 │   ├── locales/                  # TR / EN
 │   └── utils/                    # print, sound
 │
-├── docs/                         # Mimari ve proje dokümantasyonu
-│   ├── MASTER_PROJECT_REPORT.md  # Technical reference (RC1)
-│   ├── EXECUTIVE_SUMMARY.md      # Short overview
+├── docs/                         # Documentation index (see docs/README.md)
+│   ├── architecture/             # Domain & NestJS design
+│   ├── release/                  # RC1 / RC2 reports
+│   ├── reports/                  # QA artifacts & repo audits
+│   ├── assets/screenshots/      # README screenshots
+│   └── archive/                  # Pre-NestJS historical docs
 │
 ├── public/                       # PWA manifest, service worker
-├── package.json                  # Frontend (v2.0.0)
+├── package.json                  # Frontend (v1.0.0-rc2)
 └── README.md
 ```
 
@@ -956,7 +959,7 @@ Documented scope boundaries — not defects. These are planned future improvemen
 | **Frontend TypeScript** | Client is JavaScript; adapters bridge API types manually. |
 | **Horizontal WebSocket scale** | In-process rooms only; no Redis adapter yet. |
 
-Release QA notes: [`docs/RC2_FINAL_RELEASE_REPORT.md`](./docs/RC2_FINAL_RELEASE_REPORT.md)
+Release QA notes: [`docs/release/RC2_FINAL_RELEASE_REPORT.md`](./docs/release/RC2_FINAL_RELEASE_REPORT.md)
 
 ---
 
@@ -994,7 +997,7 @@ Future work — not part of RC2:
 | **Realtime** | WebSocket (`ws` adapter) |
 | **Architecture** | Clean Architecture + DDD (modular monolith) |
 
-Related reports: [RC2 Customer Experience](./docs/RC2_CUSTOMER_EXPERIENCE_REPORT.md) · [RC2 Final Release QA](./docs/RC2_FINAL_RELEASE_REPORT.md)
+Related reports: [RC2 Customer Experience](./docs/release/RC2_CUSTOMER_EXPERIENCE_REPORT.md) · [RC2 Final Release QA](./docs/release/RC2_FINAL_RELEASE_REPORT.md)
 
 ---
 
@@ -1032,10 +1035,11 @@ See [`docs/README.md`](./docs/README.md) for the full documentation index.
 |----------|---------|
 | [EXECUTIVE_SUMMARY.md](./docs/EXECUTIVE_SUMMARY.md) | Concise project overview |
 | [MASTER_PROJECT_REPORT.md](./docs/MASTER_PROJECT_REPORT.md) | Full technical reference |
-| [MIMARI-TASARIM.md](./docs/MIMARI-TASARIM.md) | Architecture design decisions |
-| [RC2_CUSTOMER_EXPERIENCE_REPORT.md](./docs/RC2_CUSTOMER_EXPERIENCE_REPORT.md) | RC2 customer journey implementation |
-| [RC2_FINAL_RELEASE_REPORT.md](./docs/RC2_FINAL_RELEASE_REPORT.md) | RC2 release QA and verdict |
-| [RC1_P0_COMPLETION_REPORT.md](./docs/RC1_P0_COMPLETION_REPORT.md) | Release Candidate 1 P0 fixes |
+| [MIMARI-TASARIM.md](./docs/architecture/MIMARI-TASARIM.md) | Architecture design decisions |
+| [RC2_CUSTOMER_EXPERIENCE_REPORT.md](./docs/release/RC2_CUSTOMER_EXPERIENCE_REPORT.md) | RC2 customer journey implementation |
+| [RC2_FINAL_RELEASE_REPORT.md](./docs/release/RC2_FINAL_RELEASE_REPORT.md) | RC2 release QA and verdict |
+| [REPOSITORY_PROFESSIONALIZATION_REPORT.md](./docs/reports/REPOSITORY_PROFESSIONALIZATION_REPORT.md) | Repository quality assessment (RC2) |
+| [RC1_P0_COMPLETION_REPORT.md](./docs/release/RC1_P0_COMPLETION_REPORT.md) | Release Candidate 1 P0 fixes |
 
 ---
 

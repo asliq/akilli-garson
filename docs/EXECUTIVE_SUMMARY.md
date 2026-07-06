@@ -1,7 +1,7 @@
 # Akıllı Garson — Executive Summary
 
 **Product:** Akıllı Garson — Restaurant Management Platform  
-**Version:** 2.0.0 (Release Candidate 1)  
+**Version:** 1.0.0-rc2 (Release Candidate 2)  
 **Document date:** July 2026  
 **Audience:** Technical reviewers, engineering interviewers
 
@@ -19,7 +19,7 @@ Akıllı Garson is a **Restaurant Management Platform** for dine-in scenarios. I
 
 The backend is organized as a **modular monolith** with Domain-Driven Design (DDD) in the Menu and Order bounded contexts. The data model is **multi-tenant ready** via a `Restaurant` root aggregate and `restaurantId` on business tables.
 
-**Release scope (RC1 / Demo Edition):** Core dine-in flows are implemented end-to-end. Additional modules (tables CRUD, payments, reservations, inventory, analytics) exist as roadmap UI or API stubs and are not part of the live product surface.
+**Release scope (RC2 / Demo Edition):** Core dine-in flows including customer service calls, order notes, and short order numbers are implemented end-to-end. Additional modules (tables CRUD, payments, reservations, inventory, analytics) exist as roadmap UI and are not part of the live product surface.
 
 ---
 

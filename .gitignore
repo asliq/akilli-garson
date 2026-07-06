@@ -29,12 +29,13 @@ coverage/
 playwright-report/
 test-results/
 
+# QA artifacts (regenerable)
+docs/reports/*.json
+
 # Prisma
 api/node_modules/
 api/dist/
 
 # Local database (embedded postgres dev)
-*.pgdata/
-
-# Optional: keep screenshots tracked
-# docs/screenshots/*.png
+.pgdata/
+api/.pgdata/

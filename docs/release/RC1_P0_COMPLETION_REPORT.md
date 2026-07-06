@@ -2,7 +2,7 @@
 
 **Release:** Release Candidate 1  
 **Date:** 2026-07-05  
-**Scope:** Six P0 fixes from `docs/RC1_PRODUCT_EXPERIENCE_AUDIT.md`  
+**Scope:** Six P0 fixes from [RC1_PRODUCT_EXPERIENCE_AUDIT.md](./RC1_PRODUCT_EXPERIENCE_AUDIT.md)  
 **Status:** Complete
 
 ---
@@ -224,7 +224,7 @@ Re-capture after seed + UI changes (`npm run screenshots` with API and frontend 
 
 ## Remaining P1 backlog
 
-From `docs/RC1_PRODUCT_EXPERIENCE_AUDIT.md` — **not implemented in this sprint**:
+From [RC1_PRODUCT_EXPERIENCE_AUDIT.md](./RC1_PRODUCT_EXPERIENCE_AUDIT.md) — **not implemented in this sprint**:
 
 | # | Item | Why it remains |
 |---|------|----------------|
