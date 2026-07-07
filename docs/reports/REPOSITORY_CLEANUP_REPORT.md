@@ -63,7 +63,7 @@ Index: [`docs/archive/README.md`](./archive/README.md)
 ### Source & tooling
 - Full `src/` and `api/` trees — no business logic changes
 - `src/components/VoiceCommand.jsx` — unused but complete; not imported (P0 hide only)
-- `src/pages/Tables.jsx`, `Inventory.jsx`, etc. — not routed; kept as portfolio artifacts
+- `src/pages/Tables.jsx`, `Inventory.jsx`, etc. — not routed; kept as legacy UI sources
 - `scripts/debug-browser.mjs` — dev smoke helper
 - `scripts/rc1-runtime-audit.mjs` — active QA script
 - `api/scripts/dev-db.mjs`, `*.vbs` — Windows embedded PostgreSQL helpers
@@ -72,7 +72,7 @@ Index: [`docs/archive/README.md`](./archive/README.md)
 - `README.md`, `api/README.md`
 - `docs/README.md` — **new** documentation index
 - Architecture: `MIMARI-TASARIM.md`, `BACKEND-ISKELET.md`, `IS-KURALLARI.md`, menu docs
-- Portfolio: `MASTER-PROJECT-REPORT.md`, `YOL-HARITASI.md`
+- Product docs: `MASTER-PROJECT-REPORT.md`, `YOL-HARITASI.md`
 - RC1: `RC1_*.md`, `rc1-audit-results.json`
 - Meta: `DOCUMENTATION_REVIEW.md`
 
@@ -91,7 +91,7 @@ Index: [`docs/archive/README.md`](./archive/README.md)
 | Seed instructions | `node scripts/dev-db.mjs` → `npm run seed:demo` (from `api/`) |
 | Demo data table | Added Lezzet Durağı, 4 table tokens |
 | Further reading | Points to `docs/README.md`; removed stale `DOMAIN-ANALIZI` link |
-| CTO questions | json-server sidebar question → roadmap modules question |
+| Architecture FAQ | json-server sidebar question → roadmap modules question |
 | Lessons learned | Generic “legacy REST shapes” wording |
 
 ---
@@ -136,7 +136,7 @@ Index: [`docs/archive/README.md`](./archive/README.md)
 | README credibility | 7/10 | 9/10 | Current stack, RC1 framing |
 | Documentation discoverability | 5/10 | 9/10 | `docs/README.md` index |
 | Asset professionalism | 6/10 | 8/10 | AG favicon; stale screenshots flagged |
-| Portfolio signal | 8/10 | 9/10 | NestJS DDD backend clearly primary |
+| Documentation signal | 8/10 | 9/10 | NestJS DDD backend clearly primary |
 | **Overall presentation** | **5.8/10** | **8.8/10** | |
 
 ---

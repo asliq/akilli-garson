@@ -134,7 +134,7 @@ The restaurant domain gave me **just enough complexity** to make architectural d
 
 ### What this project is
 
-**Akıllı Garson** is a **Restaurant Management Platform** demo — implemented as a full-stack engineering portfolio structured around a restaurant operations domain. The backend is the primary investment: NestJS, Prisma, DDD layers, 8 Prisma models, 4 migrations, WebSocket gateway. The frontend is a React 18 SPA that exercises live APIs; roadmap modules are gated in the sidebar.
+**Akıllı Garson** is a **Restaurant Management Platform** — implemented as a full-stack reference implementation for restaurant operations. The backend is the primary investment: NestJS, Prisma, DDD layers, 8 Prisma models, 4 migrations, WebSocket gateway. The frontend is a React 18 SPA that exercises live APIs; roadmap modules are gated in the sidebar.
 
 | Layer | Stack | Role |
 |-------|-------|------|
@@ -917,7 +917,7 @@ The implemented features are fully functional and demonstrated using a real Nest
 
 Some modules shown in the navigation are intentionally presented as roadmap features and are clearly marked as planned functionality.
 
-This repository is intended for **portfolio demonstration**, **technical interviews**, and **software company evaluations**.
+This repository contains the current **reference implementation** of Akıllı Garson (Demo Edition).
 
 ---
 
@@ -990,7 +990,7 @@ Future work — not part of RC2:
 |-------|-------|
 | **Version** | `v1.0.0-rc2` |
 | **Status** | Release Candidate |
-| **Target** | Portfolio demonstration |
+| **Edition** | Demo Edition |
 | **Backend** | NestJS 11 |
 | **Frontend** | React 18 + Vite 6 |
 | **Database** | PostgreSQL 16 |
@@ -1039,11 +1039,12 @@ See [`docs/README.md`](./docs/README.md) for the full documentation index.
 | [RC2_CUSTOMER_EXPERIENCE_REPORT.md](./docs/release/RC2_CUSTOMER_EXPERIENCE_REPORT.md) | RC2 customer journey implementation |
 | [RC2_FINAL_RELEASE_REPORT.md](./docs/release/RC2_FINAL_RELEASE_REPORT.md) | RC2 release QA and verdict |
 | [REPOSITORY_PROFESSIONALIZATION_REPORT.md](./docs/reports/REPOSITORY_PROFESSIONALIZATION_REPORT.md) | Repository quality assessment (RC2) |
+| [CONTENT_WORDING_AUDIT.md](./docs/reports/CONTENT_WORDING_AUDIT.md) | Neutral product wording audit (RC2) |
 | [RC1_P0_COMPLETION_REPORT.md](./docs/release/RC1_P0_COMPLETION_REPORT.md) | Release Candidate 1 P0 fixes |
 
 ---
 
-## Reviewer Notes
+## Technical Review Guide
 
 Suggested reading order for a technical review:
 
@@ -1057,7 +1058,7 @@ Start with `CreateCategoryUseCase` or `create-category.integration.spec.ts` if t
 
 ---
 
-## Questions a CTO Might Ask
+## Architecture FAQ
 
 After reading this README, reasonable follow-up questions:
 
@@ -1074,4 +1075,4 @@ After reading this README, reasonable follow-up questions:
 
 ---
 
-> Personal engineering and portfolio work. Built to apply modern restaurant-system architecture patterns on a real domain, with documented scope limits.
+> Akıllı Garson — Restaurant Management Platform (Demo Edition). Reference implementation with documented scope limits.

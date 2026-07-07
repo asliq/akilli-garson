@@ -3,7 +3,7 @@
 **Product:** Akıllı Garson — Restaurant Management Platform  
 **Version:** 1.0.0-rc2 (Release Candidate 2)  
 **Document date:** July 2026  
-**Audience:** Technical reviewers, engineering interviewers
+**Audience:** Technical reviewers and product stakeholders
 
 ---
 

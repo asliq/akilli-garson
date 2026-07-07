@@ -2,7 +2,7 @@
 
 **Tarih:** 4 Temmuz 2026  
 **Sürüm:** Demo Edition 2.1  
-**Hedef kitle:** Teknik mülakat panelleri, kurumsal yazılım değerlendiricileri ve modern SaaS platform sunumları
+**Hedef kitle:** Ürün değerlendiricileri, operasyon ekipleri ve modern SaaS platform referansları
 
 ---
 

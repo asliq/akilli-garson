@@ -1,5 +1,7 @@
 # Akıllı Garson — MASTER PROJECT REPORT
 
+> **Archived document (pre-RC2).** Preserved for historical context. Audience framing below was neutralized in 2026-07; stack details describe the json-server → NestJS transition era.
+
 **Proje:** Akıllı Garson (Smart Waiter)  
 **Versiyon:** 2.0.0  
 **Rapor Tarihi:** 3 Temmuz 2026  
@@ -10,7 +12,7 @@
 
 ## Doküman Amacı
 
-Bu rapor; teknik mülakatlar, bağımsız yazılım mühendisliği portföyü sunumları, iş başvuruları, yatırımcı görüşmeleri ve GitHub README hazırlığı için **tek kaynak** olarak kullanılmak üzere hazırlanmıştır. Övgü değil, **gerçekçi değerlendirme** hedeflenmiştir.
+Bu rapor; ürün değerlendirmesi, teknik inceleme, yatırımcı görüşmeleri ve GitHub README hazırlığı için **tek kaynak** olarak kullanılmak üzere hazırlanmıştır. Övgü değil, **gerçekçi değerlendirme** hedeflenmiştir.
 
 ---
 
@@ -52,7 +54,7 @@ Bu rapor; teknik mülakatlar, bağımsız yazılım mühendisliği portföyü su
 | **Production hazır** | ❌ **Hayır** — Auth, ödeme, masa API, CI/CD, test coverage, güvenlik eksik |
 | **SaaS hazır** | ⚠️ **Kısmen** — Şema ve tenant altyapısı var; auth, billing, onboarding yok |
 
-**Özet:** Proje **gelişmiş bir teknik portföy / mimari showcase** ile **erken aşama ürün (MVP+)** arasında bir noktadadır. Backend ciddi mimari yatırım almış; frontend legacy json-server döneminden NestJS'e geçişin ortasındadır.
+**Özet:** Proje **gelişmiş bir referans implementasyon / mimari referans** ile **erken aşama ürün (MVP+)** arasında bir noktadadır. Backend ciddi mimari yatırım almış; frontend legacy json-server döneminden NestJS'e geçişin ortasındadır.
 
 ---
 
@@ -895,7 +897,7 @@ sequenceDiagram
 
 ## Strengths (Güçlü Yönler)
 
-- **Ciddi backend mimarisi:** DDD, domain events, repository pattern — portföyde öne çıkar
+- **Ciddi backend mimarisi:** DDD, domain events, repository pattern — teknik incelemede öne çıkar
 - **Doğru teknoloji seçimi:** NestJS + Prisma + PG — endüstri standardı
 - **Multi-tenant şema:** SaaS yol haritası düşünülmüş
 - **Zengin frontend:** 16 sayfa, animasyonlar, KDS, dashboard — demo etkisi yüksek
@@ -928,7 +930,7 @@ sequenceDiagram
 
 ---
 
-# 19. Portfolio Evaluation
+# 19. Technical Assessment (by experience level)
 
 | Seviye | Uygunluk | Gerekçe |
 |--------|----------|---------|
@@ -954,11 +956,11 @@ sequenceDiagram
 
 ---
 
-# 20. Recruiter Evaluation
+# 20. Stakeholder Assessment
 
 ## Teknik Ekip Lideri
 
-> *"Mimari okuması iyi, menu modülü temiz. Auth ve test olmadan production'a almam. Ama tek başına bu kadar iş çıkarmış — mid+ veya senior adayı olabilir."*
+> *"Mimari okuması iyi, menu modülü temiz. Auth ve test olmadan production'a almam. Ama tek başına bu kadar iş çıkarmış — teknik derinlik gösteriyor."*
 
 **Beğenir:** DDD, Prisma şema, Swagger, event-driven WS  
 **Eksik bulur:** Test, auth, yarım feature'lar, JS frontend
@@ -980,7 +982,7 @@ sequenceDiagram
 ## Kurumsal Teknik Değerlendirici
 
 **Beğenir:**
-- Modern stack showcase
+- Modern stack referansı
 - Müşteriye demo edilebilir QR akışı
 - Mimari dokümantasyon (teslim edilebilirlik sinyali)
 
@@ -1036,7 +1038,7 @@ sequenceDiagram
 
 | Hedef | Sunulabilir? |
 |-------|:------------:|
-| Teknik mülakat portföyü | ✅ Evet |
+| Teknik referans implementasyonu | ✅ Evet |
 | Hackathon / demo günü | ✅ Evet |
 | Pilot restoran (ücretsiz beta) | ⚠️ Kontrollü |
 | Ücretli satış | ❌ Hayır |
@@ -1083,30 +1085,30 @@ sequenceDiagram
 | **Security** | 32 | Kritik boşluk — en düşük alan |
 | **Code Quality** | 67 | Backend iyi; frontend tutarsız |
 | **Maintainability** | 70 | Modüler; dual-backend borcu |
-| **Portfolio Value** | 80 | Mülakat için güçlü hikâye |
+| **Documentation value** | 80 | Mimari kararlar iyi belgelenmiş |
 | **Commercial Value** | 48 | Erken; rakip alanı zor |
-| **Overall** | **68** | Güçlü teknik showcase, zayıf ürün olgunluğu |
+| **Overall** | **68** | Güçlü teknik referans, zayıf ürün olgunluğu |
 
 ---
 
-## Sonuç: Bu Projeyle İş Başvurusu Yapılabilir mi?
+## Sonuç: Dış Değerlendirme İçin Uygun mu?
 
-### Kısa cevap: **Evet — doğru pozisyon ve doğru anlatımla.**
+### Kısa cevap: **Evet — doğru kapsam ve doğru anlatımla.**
 
 ### Detaylı cevap
 
-**Yapılabilir:**
-- **Mid-level Full-Stack** veya **Backend-heavy Full-Stack** pozisyonları
-- **NestJS / Node / TypeScript backend** odaklı roller
+**Uygun:**
+- **Teknik inceleme** ve **referans implementasyon** sunumu
+- **NestJS / Node / TypeScript backend** odaklı değerlendirme
 - **Startup** ve **ürün odaklı ekipler** (MVP hızı takdir edilir)
-- Portföy linki + canlı demo + mimari açıklama ile
+- Canlı demo + mimari açıklama ile
 
 **Zorlanır:**
-- **Security-critical** (fintech, health)
-- **"Production sistemlerini devral"** senior rolleri
-- **Frontend architect** (TS, test, design system eksik)
+- **Security-critical** (fintech, health) production devralma
+- **"Production sistemlerini devral"** beklentisi olan roller
+- **Frontend architect** beklentisi (TS, test, design system eksik)
 
-### Güçlü Yönler (başvuruda vurgula)
+### Güçlü Yönler (değerlendirmede vurgula)
 
 1. Sıfırdan DDD ile menu bounded context tasarımı
 2. Multi-tenant Prisma şeması ve migration disiplini
@@ -1114,7 +1116,7 @@ sequenceDiagram
 4. Legacy json-server'dan NestJS'e bilinçli migrasyon
 5. Full-stack ürün düşüncesi (16 ekran, QR + staff)
 
-### Açık Eksikler (mülakatta proaktif söyle)
+### Açık Eksikler (değerlendirmede proaktif belirt)
 
 1. JWT / RBAC uygulanmadı — bilinçli erteleme
 2. Test coverage düşük — integration altyapısı hazır
@@ -1124,7 +1126,7 @@ sequenceDiagram
 
 ### Objektif Hüküm
 
-Bu proje **"tutorial CRUD" değil** — gerçek mimari derinliği var. Aynı zamanda **"production SaaS" de değil** — güvenlik ve operasyon katmanları eksik. İş başvurusunda **en güçlü kart**, backend mimari kararlarını somut dosyalarla anlatabilmektir. En büyük risk, çalışmayan ekranları gösterip "hepsi bitti" izlenimi vermektir — **dar ama çalışan demo** ile sunulmalıdır.
+Bu proje **"tutorial CRUD" değil** — gerçek mimari derinliği var. Aynı zamanda **"production SaaS" de değil** — güvenlik ve operasyon katmanları eksik. Dış değerlendirmede **en güçlü nokta**, backend mimari kararlarını somut dosyalarla anlatabilmektir. En büyük risk, çalışmayan ekranları gösterip "hepsi bitti" izlenimi vermektir — **dar ama çalışan demo** ile sunulmalıdır.
 
 ---
 

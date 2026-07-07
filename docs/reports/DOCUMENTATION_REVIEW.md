@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-04  
 **Scope:** All project documentation (`README.md`, `api/README.md`, `docs/*.md`)  
-**Goal:** Remove references to specific companies, brands, and commercial software vendors so the repository reads as an **independent software engineering portfolio**, not material targeted at a particular organization.
+**Goal:** Remove references to specific companies, brands, and commercial software vendors so the repository reads as **neutral product documentation**, not material targeted at a particular organization.
 
 ---
 
@@ -25,7 +25,7 @@ A final repository-wide scan of `docs/` and root READMEs confirms **no remaining
 | File | Changes |
 |------|---------|
 | `docs/DEMO_UX_REPORT.md` | Audience line: vendor list → neutral evaluator / SaaS framing |
-| `docs/PRODUCT_POLISH_REPORT.md` | Reference segment + footer: portfolio-oriented wording |
+| `docs/PRODUCT_POLISH_REPORT.md` | Reference segment + footer: audience-oriented wording |
 | `docs/MASTER-PROJECT-REPORT.md` | Purpose, billing, competitors, stakeholder section, RFP row, monitoring, payment notes |
 | `docs/MENU-DATABASE-TASARIMI.md` | Payment pattern example: named gateways → industry-neutral phrasing |
 | `docs/TEKNIK-DURUM.md` | Error tracking roadmap: `Sentry` → generic APM wording |
@@ -87,9 +87,9 @@ A final repository-wide scan of `docs/` and root READMEs confirms **no remaining
 
 | Before (pattern) | After (pattern) |
 |------------------|-----------------|
-| `Hedef kitle: Logo, AKINSOFT, Nebim…` | Teknik mülakat panelleri, kurumsal yazılım değerlendiricileri, modern SaaS platform sunumları |
+| `Hedef kitle: Logo, AKINSOFT, Nebim…` | Ürün değerlendiricileri, operasyon ekipleri, modern SaaS platform referansları |
 | `Referans segment: AKINSOFT, Logo Yazılım…` | Kurumsal ERP yazılımları, modern SaaS platformları, restoran yönetim platformları |
-| `yazılım firması sunumları` | Bağımsız yazılım mühendisliği portföyü sunumları |
+| `yazılım firması sunumları` | Ürün dokümantasyonu ve Demo Edition sunumları |
 | `## Yazılım Firması` | `## Kurumsal Teknik Değerlendirici` |
 | `Kurumsal yazılım firması RFP` | Kurumsal satın alma / RFP süreçleri |
 | `Türkiye ödeme entegrasyonu` | Bölgesel ödeme ve mali mevzuat entegrasyonu |
@@ -101,11 +101,11 @@ A final repository-wide scan of `docs/` and root READMEs confirms **no remaining
 
 ## Consistency improvements
 
-1. **Audience framing** — Demo and polish reports now describe the same neutral audience: technical interview panels and portfolio reviewers, not a named vendor shortlist.
+1. **Audience framing** — Demo and polish reports now describe a neutral product audience: technical reviewers and operators, not a named vendor shortlist.
 
 2. **Integration roadmap language** — `YOL-HARITASI.md`, `TAM-RAPOR.md`, `PROJE-RAPORU.md`, and `MIMARI-TASARIM.md` use the same generic phrases for payments, billing, delivery, accounting, and messaging.
 
-3. **Stakeholder personas** — `MASTER-PROJECT-REPORT.md` uses role-based labels (CTO, Product Manager, Kurumsal Teknik Değerlendirici) instead of implying a specific employer context.
+3. **Stakeholder personas** — `MASTER-PROJECT-REPORT.md` uses role-based labels (technical lead, product manager, enterprise reviewer) instead of implying a specific employer context.
 
 4. **Competitive analysis** — Named competitor rows replaced with **market categories** (local POS, QR solutions, delivery ecosystems, global reference architectures).
 
@@ -138,7 +138,7 @@ Stripe, Adyen, Square, Toast, Sentry, Twilio, SendGrid, Grafana, Datadog
 When adding new documentation:
 
 - Describe **categories** (enterprise SaaS, restaurant POS, payment gateway) instead of **vendor names**.
-- Frame the project as a **software engineering portfolio** or **technical demonstration**, not a deliverable for a named company.
+- Frame the project as a **reference implementation** or **technical demonstration**, not a deliverable for a named company.
 - Keep regulatory terms (e-Fatura, KVKK) where they describe compliance domains, not products.
 
 ---

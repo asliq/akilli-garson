@@ -17,7 +17,7 @@
 | Auth / security | 40 | Demo PIN only; header-based tenant |
 | Production ops | 50 | No CI/CD; Docker local only |
 
-**Verdict:** Ready for **software company technical demo** and portfolio walkthrough. Not ready for commercial deployment.
+**Verdict:** Ready for **external technical demonstration** and product walkthrough. Not ready for commercial deployment.
 
 ---
 

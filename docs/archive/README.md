@@ -29,4 +29,4 @@ Historical documents preserved for context. **They do not describe the current R
 | `DEMO_READY_REPORT.md` | Demo stabilization report |
 | `DEMO_UX_REPORT.md` | Demo Edition UX sprint |
 | `PRODUCT_POLISH_REPORT.md` | Product polish sprint |
-| `MASTER-PROJECT-REPORT.md` | Superseded report with scores, SWOT, and recruiter sections |
+| `MASTER-PROJECT-REPORT.md` | Superseded report with scores, SWOT, and stakeholder assessment sections |

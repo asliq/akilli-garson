@@ -20,7 +20,7 @@ However, the journey **stops halfway** through a real dining experience. Steps 1
 |-----------|--------------|-------|
 | **UX Score** | **6.8** | Strong menu + cart; weak post-order and payment journey |
 | **Professionalism Score** | **6.2** | Polished shell; placeholder images, misleading payment copy, technical order IDs |
-| **Demo Readiness** | **7.0** | QR → order → track works for investor/staff walkthrough |
+| **Demo Readiness** | **7.0** | QR → order → track works for staff and operator walkthrough |
 | **Self-service readiness** | **4.5** | Customer cannot complete meal without waiter for bill/payment |
 
 **Would a real customer understand it without explanation?**  

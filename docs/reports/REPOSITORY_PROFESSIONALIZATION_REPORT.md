@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The repository was reviewed end-to-end for open-source and portfolio presentation quality. RC2 is functionally stable (see [RC2 Final Release Report](./release/RC2_FINAL_RELEASE_REPORT.md)). This pass focused on documentation structure, duplicate removal, script hygiene, version alignment, and `.gitignore` completeness.
+The repository was reviewed end-to-end for open-source and product documentation quality. RC2 is functionally stable (see [RC2 Final Release Report](../release/RC2_FINAL_RELEASE_REPORT.md)). This pass focused on documentation structure, duplicate removal, script hygiene, version alignment, and `.gitignore` completeness.
 
 **Overall repository score: 8.4 / 10**
 
@@ -18,10 +18,10 @@ The repository was reviewed end-to-end for open-source and portfolio presentatio
 | Documentation quality | 8.5 |
 | Presentation quality | 8.5 |
 | GitHub readiness | 8.0 |
-| Portfolio readiness | 9.0 |
+| Demonstration readiness | 9.0 |
 | Maintainability | 8.0 |
 
-**Verdict:** Suitable for public GitHub and technical portfolio use with documented scope limits (payment, JWT, roadmap modules).
+**Verdict:** Suitable for public GitHub and external demonstration with documented scope limits (payment, JWT, roadmap modules).
 
 ---
 
@@ -105,7 +105,7 @@ The repository was reviewed end-to-end for open-source and portfolio presentatio
 | P3 | **`ws` in root package.json** | Used only by audit scripts; acceptable devDependency candidate |
 | P4 | **Unused route pages** | `DailyReport.jsx`, `Analytics.jsx` may exist without routes (legacy) |
 
-None of these block demo or portfolio use.
+None of these block Demo Edition use.
 
 ---
 
@@ -173,7 +173,7 @@ docs/
 
 ---
 
-## Portfolio Readiness
+## Demonstration Readiness
 
 | Criterion | Ready? |
 |-----------|--------|
@@ -183,7 +183,7 @@ docs/
 | Visual polish | Yes (screenshots + Demo Edition UI) |
 | Honest about gaps | Yes (payments, JWT, roadmap modules) |
 
-**Strong fit** for software company technical interviews and engineering portfolio review.
+**Suitable** for pilot restaurant demos and technical review with documented scope limits.
 
 ---
 
@@ -264,7 +264,7 @@ No unused dependencies removed in this pass (requires import analysis per packag
 | **Strengths** | Real stack, honest docs, RC2 QA, organized `docs/`, clean source |
 | **Gaps** | LICENSE, CI, author placeholders, master report age |
 | **GitHub** | Ready with LICENSE + disclaimer |
-| **Portfolio** | Ready now |
+| **Demonstration** | Ready |
 
 ---
 

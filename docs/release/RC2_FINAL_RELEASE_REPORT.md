@@ -32,11 +32,11 @@ RC2 was verified against the **running** stack (`localhost:3001` API, `localhost
 
 ### Final Verdict
 
-## ✅ READY TO SHARE WITH SOFTWARE COMPANIES
+## ✅ READY FOR EXTERNAL DEMONSTRATION (DEMO EDITION)
 
-Also suitable for **portfolio demos** and **controlled GitHub publication** with clear README scope labels (Demo Edition).
+Suitable for **controlled GitHub publication** with clear README scope labels (Demo Edition).
 
-**Not recommended** as **READY FOR PUBLIC GITHUB RELEASE** without upfront documentation that payment, table management, and several sidebar modules are roadmap-only — to avoid misleading evaluators.
+**Not recommended** as **READY FOR PUBLIC GITHUB RELEASE** without upfront documentation that payment, table management, and several sidebar modules are roadmap-only — to avoid misleading readers about production scope.
 
 ---
 
@@ -315,11 +315,9 @@ Raw JSON: `docs/rc2-final-release-audit-results.json`
 
 ## Final Verdict (Restated)
 
-### ✅ READY TO SHARE WITH SOFTWARE COMPANIES
+### ✅ READY FOR EXTERNAL DEMONSTRATION (DEMO EDITION)
 
-The application is **stable, demonstrable, and professionally polished** for technical interviews, portfolio walkthroughs, and pilot restaurant demos. RC2 customer dining loop works on real infrastructure.
-
-### Also: ✅ READY FOR PORTFOLIO
+The application is **stable, demonstrable, and professionally polished** for pilot restaurant demos and technical review. RC2 customer dining loop works on real infrastructure.
 
 ### ⚠️ PUBLIC GITHUB RELEASE — only with explicit Demo Edition disclaimer
 

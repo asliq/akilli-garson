@@ -250,7 +250,7 @@ Branded splash loader, staff footer version line, initials avatars, i18n cleanup
 4. Orders → mixed statuses including completed
 5. Menu → 12 items across 4 categories
 6. Customer QR `?token=qr-masa-1` → order without fake fees
-7. Avoid roadmap sidebar items during a 10-minute interview demo
+7. Avoid roadmap sidebar items during a short product demo
 
 ---
 

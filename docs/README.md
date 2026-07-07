@@ -37,4 +37,5 @@ Entry point for **Akıllı Garson** — Restaurant Management Platform — techn
 
 | Document | Content |
 |----------|---------|
+| [reports/CONTENT_WORDING_AUDIT.md](./reports/CONTENT_WORDING_AUDIT.md) | Neutral product wording audit (RC2) |
 | [reports/REPOSITORY_PROFESSIONALIZATION_REPORT.md](./reports/REPOSITORY_PROFESSIONALIZATION_REPORT.md) | RC2 repo quality assessment |

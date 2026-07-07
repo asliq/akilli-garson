@@ -1,7 +1,7 @@
 # Akıllı Garson — Product Polish Report
 
 **Tarih:** 4 Temmuz 2026  
-**Hedef:** Teknik mülakat ve bağımsız yazılım mühendisliği portföyü için ticari ürün algısı  
+**Hedef:** Demo Edition için ticari ürün algısı ve tutarlı kullanıcı deneyimi  
 **Referans segment:** Kurumsal ERP yazılımları, modern SaaS platformları, restoran yönetim platformları
 
 ---
@@ -216,4 +216,4 @@ Her yol haritası modülü şunları içerir:
 
 ---
 
-*Bu rapor, teknik portföy sunumu için yapılan ürün cilası sprintinin resmi kaydıdır.*
+*Bu rapor, Demo Edition ürün cilası sprintinin resmi kaydıdır.*

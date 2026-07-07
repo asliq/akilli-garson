@@ -3,14 +3,14 @@
 **Date:** 2026-07-05  
 **Release:** RC1 — Demo Edition  
 **Reviewer role:** Staff Product Designer · Senior Frontend Architect · Technical Reviewer  
-**Method:** Code review, component inventory, RC1 runtime audit cross-reference, CTO first-session walkthrough simulation  
+**Method:** Code review, component inventory, RC1 runtime audit cross-reference, first-session walkthrough simulation  
 **Scope:** Product experience only — no implementation performed
 
 ---
 
-## Executive summary (CTO first 60 seconds)
+## Executive summary (Technical reviewer first 60 seconds)
 
-| Moment | What the CTO sees | Confidence |
+| Moment | What the Technical reviewer sees | Confidence |
 |--------|-------------------|------------|
 | Browser tab | Professional title + meta; **Vite default favicon** | Neutral |
 | Login | Strong brand, Demo Edition badge, animated card | **↑ High** |
@@ -36,7 +36,7 @@
 - **Information architecture:** ERP-style `NAV_SECTIONS` with section labels, breadcrumbs, page titles — reads enterprise.
 - **Honest roadmap pages:** No “API not implemented” developer copy; professional phase/capability cards.
 - **Dashboard empty states:** `EmptyState` component with icon, title, description — best pattern in the app.
-- **System health:** Real `/health/live`, `/health/ready`, WebSocket status — rare in portfolio projects.
+- **System health:** Real `/health/live`, `/health/ready`, WebSocket status — uncommon in demo-stage products.
 
 ### What hurts everywhere
 
@@ -61,7 +61,7 @@
 |----------|------------|
 | **Professional** | Lazy route splitting; inline `PageLoader` with spinner; `AuthGuard` session spinner with branded copy |
 | **Unfinished** | No branded splash; Vite favicon; white flash before CSS; no skeleton brand mark |
-| **CTO in 15s** | Tab icon is Vite; first paint is generic spinner + “Yükleniyor…” / “Oturum kontrol ediliyor…” |
+| **Technical reviewer in 15s** | Tab icon is Vite; first paint is generic spinner + “Yükleniyor…” / “Oturum kontrol ediliyor…” |
 | **Confidence** | Neutral — does not hurt, does not impress |
 | **Score** | **5 / 10** |
 
@@ -73,7 +73,7 @@
 |----------|------------|
 | **Professional** | Full-bleed gradient background; motion entrance; three-line brand block; Demo Edition badge; PIN field; loading state on submit; quick-login for demo |
 | **Unfinished** | Floating 🍕🍔🍰 decorations; email placeholder `ornek@restaurant.com` (wrong domain vs `@restoran.com`); “Hızlı Giriş (Demo)” + visible PIN — reads as hackathon |
-| **CTO in 15s** | “This is a demo build” — immediately clear; brand otherwise looks commercial |
+| **Technical reviewer in 15s** | “This is a demo build” — immediately clear; brand otherwise looks commercial |
 | **Confidence** | **Increases** — best first impression in the app |
 | **Score** | **8 / 10** |
 
@@ -85,7 +85,7 @@
 |----------|------------|
 | **Professional** | KPI grid (revenue, active, completed, AOV); kitchen queue; restaurant status; activity feed; popular items; embedded health panel; quick links; personalized greeting; error banner with retry; `EmptyState` throughout |
 | **Unfinished** | Duplicate `h1` vs layout header; empty KPIs show `0` / em-dash without strong “seed demo data” story; order IDs truncated to 6 chars look technical not operational |
-| **CTO in 15s** | “Operations center” — feels like a real product **if data exists**; empty state feels like a fresh install |
+| **Technical reviewer in 15s** | “Operations center” — feels like a real product **if data exists**; empty state feels like a fresh install |
 | **Confidence** | **Strong increase** — flagship screen |
 | **Score** | **8.5 / 10** |
 
@@ -97,7 +97,7 @@
 |----------|------------|
 | **Professional** | Status chips with icons; filter bar; rich payment modal (discount, tip, split); order lifecycle actions; print; refresh |
 | **Unfinished** | Full-page “Yükleniyor...” loader; `window.confirm` for cancel; payment UI fully styled when payments API disabled; masa shown as UUID tail; inline empty state not `EmptyState` |
-| **CTO in 15s** | Functional list; payment modal signals maturity; **if they open payment** they may ask “is this real?” |
+| **Technical reviewer in 15s** | Functional list; payment modal signals maturity; **if they open payment** they may ask “is this real?” |
 | **Confidence** | Moderate increase — capable but uneven polish |
 | **Score** | **7 / 10** |
 
@@ -109,7 +109,7 @@
 |----------|------------|
 | **Professional** | KDS-style cards; elapsed timer; priority badges; filter tabs; stat row (bekliyor / hazırlanıyor / hazır) |
 | **Unfinished** | Plain text loading/error; **per-item action buttons that don’t match API**; priority toggle appears functional but is local-only; table as UUID fragment |
-| **CTO in 15s** | Looks like a real KDS until they click an item button and all lines change together |
+| **Technical reviewer in 15s** | Looks like a real KDS until they click an item button and all lines change together |
 | **Confidence** | **Decreases** — highest UX credibility risk in live modules |
 | **Score** | **6 / 10** |
 
@@ -121,7 +121,7 @@
 |----------|------------|
 | **Professional** | `Card`, `Button`, `SkeletonCard`; category chips with counts; inline price edit; add-product modal; image grid; search |
 | **Unfinished** | Empty category copy mentions “Demo veritabanı”; duplicate error line in error state; draft items show “Stokta Yok” overlay — confusing for staff |
-| **CTO in 15s** | Most “product-designed” staff screen after Dashboard |
+| **Technical reviewer in 15s** | Most “product-designed” staff screen after Dashboard |
 | **Confidence** | Increase — demonstrates write path (price edit) |
 | **Score** | **7.5 / 10** |
 
@@ -135,7 +135,7 @@
 |----------|------------|
 | **Professional** | Auto-redirect on token; gradient hero; QR metaphor; separate visual lane from staff app |
 | **Unfinished** | Manual token entry UX is dev-oriented; quick table number buttons |
-| **CTO in 15s** | QR deep link works — good demo moment |
+| **Technical reviewer in 15s** | QR deep link works — good demo moment |
 | **Confidence** | Increase for cross-channel story |
 | **Score** | **7 / 10** |
 
@@ -145,7 +145,7 @@
 |----------|------------|
 | **Professional** | Mobile-first cart; category tabs; item detail modal; service fee line; order success toast + redirect |
 | **Unfinished** | Hardcoded 10% service fee (not from API); “Garson Çağır” if visible and disabled; payment flow UI on customer side |
-| **CTO in 15s** | Polished consumer lane; feels separate product surface |
+| **Technical reviewer in 15s** | Polished consumer lane; feels separate product surface |
 | **Confidence** | Strong increase when demoed from phone |
 | **Score** | **7.5 / 10** |
 
@@ -157,7 +157,7 @@
 |----------|------------|
 | **Professional** | Status timeline; order cards; detail modal; refresh |
 | **Unfinished** | Detail modal **fake 90/10 subtotal/service split**; `window.confirm` on cancel; loads staff `useOrders` (all restaurant orders filtered client-side — scope concern for demo) |
-| **CTO in 15s** | Timeline looks premium; numbers in detail modal look invented |
+| **Technical reviewer in 15s** | Timeline looks premium; numbers in detail modal look invented |
 | **Confidence** | Mixed — visual yes, data honesty no |
 | **Score** | **6.5 / 10** |
 
@@ -169,7 +169,7 @@
 |----------|------------|
 | **Professional** | Card-based sections; profile block; theme/language/sound/kitchen refresh; notification prefs; cache clear |
 | **Unfinished** | Every toggle fires toast immediately — noisy; `hasChanges` state unused; dark mode toggle exists but demo is light-first; API status section may reference legacy concepts |
-| **CTO in 15s** | “Enterprise settings page” appearance |
+| **Technical reviewer in 15s** | “Enterprise settings page” appearance |
 | **Confidence** | Slight increase — completeness signal |
 | **Score** | **7 / 10** |
 
@@ -181,7 +181,7 @@
 |----------|------------|
 | **Professional** | Clear intro copy (“simüle edilmiş veri kullanılmaz”); `SystemHealthPanel` with latency; component list explainer; status dots |
 | **Unfinished** | Redis not surfaced as its own row (folded into ready endpoint); duplicate with dashboard compact panel |
-| **CTO in 15s** | “They wired real health checks” — strong engineering signal |
+| **Technical reviewer in 15s** | “They wired real health checks” — strong engineering signal |
 | **Confidence** | **Strong increase** — best credibility screen for technical audience |
 | **Score** | **8.5 / 10** |
 
@@ -193,7 +193,7 @@
 |----------|------------|
 | **Professional** | Hero + phase badge + capabilities list + architecture note + edition footer; no broken UI |
 | **Unfinished** | Nine clickable sidebar entries lead here — scope inflation; all pages look similar (template fatigue) |
-| **CTO in 15s** | “Planned modules” — honest if you say it once; **if they click three**, feels like padding |
+| **Technical reviewer in 15s** | “Planned modules” — honest if you say it once; **if they click three**, feels like padding |
 | **Confidence** | Increase if framed as vision; decrease if explored randomly |
 | **Score** | **8 / 10** (page quality) · **5 / 10** (IA risk when over-navigated) |
 
@@ -205,7 +205,7 @@
 |----------|------------|
 | **Professional** | AG monogram; three-line brand; online + WebSocket status; section labels; live badges on orders; “Plan” badge on roadmap items; user profile + logout |
 | **Unfinished** | 15 items for 6 live modules; roadmap items still fully clickable; emoji user avatar |
-| **CTO in 15s** | “Wide product vision” — sidebar sells scope |
+| **Technical reviewer in 15s** | “Wide product vision” — sidebar sells scope |
 | **Confidence** | Increase (breadth) / risk (depth) |
 | **Score** | **8 / 10** |
 
@@ -217,7 +217,7 @@
 |----------|------------|
 | **Professional** | Breadcrumbs; page title; Demo Edition pill; live clock; notification bell with count |
 | **Unfinished** | **VoiceCommand mic** in header — niche, unreliable; competes with CommandPalette; duplicate title with page-level `h1` |
-| **CTO in 15s** | Dense toolbar — enterprise density |
+| **Technical reviewer in 15s** | Dense toolbar — enterprise density |
 | **Confidence** | Slight increase; mic button raises eyebrow |
 | **Score** | **7.5 / 10** |
 
@@ -229,7 +229,7 @@
 |----------|------------|
 | **Professional** | Max-width content; consistent padding; mobile hamburger + overlay |
 | **Unfinished** | No footer; no global page actions pattern |
-| **CTO in 15s** | Clean canvas |
+| **Technical reviewer in 15s** | Clean canvas |
 | **Confidence** | Neutral |
 | **Score** | **7 / 10** |
 
@@ -241,7 +241,7 @@
 |----------|------------|
 | **Professional** | Login card footer with `DEMO_EDITION.footer` |
 | **Unfinished** | **No staff app footer** — no version, build, or support link |
-| **CTO in 15s** | Not noticed (absent) |
+| **Technical reviewer in 15s** | Not noticed (absent) |
 | **Confidence** | Neutral |
 | **Score** | **N/A** (staff) · Login footer **6 / 10** |
 
@@ -291,7 +291,7 @@
 
 ## Prioritized backlog
 
-### P0 — Must fix before interview (first impression)
+### P0 — Must fix before release (first impression)
 
 | # | Item | Why |
 |---|------|-----|

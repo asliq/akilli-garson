@@ -80,7 +80,7 @@ Move to `docs/archive/` — historical value, but describe **obsolete json-serve
 | `docs/MENU-DATABASE-TASARIMI.md` | Menu DB design |
 | `docs/MENU-CREATE-CATEGORY-USE-CASE.md` | Use-case specification |
 | `docs/MENU-PRISMA-M1-RAPOR.md` | Prisma M1 migration report |
-| `docs/MASTER-PROJECT-REPORT.md` | Deep-dive portfolio report (linked from README) |
+| `docs/MASTER-PROJECT-REPORT.md` | Deep-dive technical report (linked from README) |
 | `docs/YOL-HARITASI.md` | Product roadmap |
 | `docs/DOCUMENTATION_REVIEW.md` | Vendor-neutrality meta review |
 | `docs/RC1_*.md` | Release candidate audits & P0 completion |
@@ -91,7 +91,7 @@ Move to `docs/archive/` — historical value, but describe **obsolete json-serve
 | Path | Reason |
 |------|--------|
 | `src/components/VoiceCommand.jsx` | Out of scope but complete component; no import — keep (no logic change) |
-| `src/pages/Tables.jsx`, `Inventory.jsx`, etc. | Legacy UI sources; not routed — portfolio history |
+| `src/pages/Tables.jsx`, `Inventory.jsx`, etc. | Legacy UI sources; not routed — historical reference |
 | `api/scripts/dev-db.mjs`, `*.vbs` | Windows embedded PostgreSQL dev helpers |
 
 ---
@@ -135,7 +135,7 @@ Move to `docs/archive/` — historical value, but describe **obsolete json-serve
 | README accuracy | json-server timeline, wrong seed path | NestJS-first, `npm run seed:demo` |
 | Clone size (git) | Very large (node_modules in history*) | Working tree clean; *history shrink needs optional `git filter-repo` later |
 
-**GitHub first impression:** moves from “accidental monorepo + vendor dump” to “professional full-stack portfolio.”
+**GitHub first impression:** moves from “accidental monorepo + vendor dump” to “professional full-stack product repository.”
 
 ---
 

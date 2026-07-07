@@ -6,6 +6,7 @@ Repository maintenance, branding reviews, and machine-generated QA outputs.
 
 | Document | Content |
 |----------|---------|
+| [CONTENT_WORDING_AUDIT.md](./CONTENT_WORDING_AUDIT.md) | RC2 neutral product wording pass |
 | [REPOSITORY_PROFESSIONALIZATION_REPORT.md](./REPOSITORY_PROFESSIONALIZATION_REPORT.md) | RC2 repository quality assessment |
 | [REPOSITORY_CLEANUP_REPORT.md](./REPOSITORY_CLEANUP_REPORT.md) | Prior repo cleanup results |
 | [REPOSITORY_CLEANUP_PLAN.md](./REPOSITORY_CLEANUP_PLAN.md) | Cleanup plan (completed) |
